@@ -23,7 +23,7 @@
         </p>
     </header>
     <div class="post-content">
-        {% if post.post_type == 'short' %}
+        {% if post.post_type == 'uncut' %}
         <p>{{ post.content }}</p>
         {% set images = post.get_image_list() %}
         {% if images %}
