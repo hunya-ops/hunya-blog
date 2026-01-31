@@ -9,6 +9,9 @@ from app.models import Image
 
 from functools import wraps
 from app.models import Image, Post
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 api_bp = Blueprint('api', __name__)
 
@@ -65,7 +68,25 @@ def upload_image():
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
 
         # 保存并压缩图片
-        img = PILImage.open(file)
+        try:
+            file.seek(0)
+            img = PILImage.open(file)
+        except Exception:
+            # Fallback for some HEIC files that might fail initial open
+            import pillow_heif
+            file.seek(0)
+            if pillow_heif.is_supported(file):
+                file.seek(0)
+                heif_file = pillow_heif.read_heif(file)
+                img = PILImage.frombytes(
+                    heif_file.mode,
+                    heif_file.size,
+                    heif_file.data,
+                    "raw",
+                )
+            else:
+                raise
+
         if img.mode in ('RGBA', 'P'):
             img = img.convert('RGB')
 
