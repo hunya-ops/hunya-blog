@@ -7,7 +7,35 @@ from PIL import Image as PILImage
 from app import db
 from app.models import Image
 
+from functools import wraps
+from app.models import Image, Post
+
 api_bp = Blueprint('api', __name__)
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('X-API-Key')
+        if not token or token != current_app.config.get('API_KEY'):
+            return jsonify({'error': '未授权'}), 401
+        return f(*args, **kwargs)
+    return decorated
+
+
+def login_or_token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Check for API Key first
+        token = request.headers.get('X-API-Key')
+        if token and token == current_app.config.get('API_KEY'):
+            return f(*args, **kwargs)
+        # Fallback to session auth
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            return f(*args, **kwargs)
+        return jsonify({'error': '未授权'}), 401
+    return decorated
 
 
 def allowed_file(filename):
@@ -16,7 +44,7 @@ def allowed_file(filename):
 
 
 @api_bp.route('/upload', methods=['POST'])
-@login_required
+@login_or_token_required
 def upload_image():
     if 'image' not in request.files:
         return jsonify({'error': '没有上传文件'}), 400
@@ -52,3 +80,34 @@ def upload_image():
         })
 
     return jsonify({'error': '不支持的文件格式'}), 400
+
+
+@api_bp.route('/posts', methods=['POST'])
+@token_required
+def create_post():
+    data = request.json
+    if not data or 'content' not in data:
+        return jsonify({'error': '缺少内容'}), 400
+
+    content = data.get('content')
+    image_urls = data.get('image_urls', '')
+    tags = data.get('tags', [])
+
+    post = Post(
+        content=content,
+        image_urls=image_urls,
+        post_type='uncut',  # iOS Shortcuts are primarily for 'uncut'
+        is_published=True
+    )
+
+    if tags:
+        post.set_tags(','.join(tags))
+
+    db.session.add(post)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'short_id': post.short_id,
+        'url': post.url
+    }), 201

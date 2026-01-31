@@ -50,6 +50,7 @@ class Config:
 
     # Admin Configuration
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin'
+    API_KEY = os.environ.get('API_KEY') or 'dev-token-123'
 
     # Blog Configuration
     BLOG_TITLE = os.environ.get('BLOG_TITLE') or '我的博客'

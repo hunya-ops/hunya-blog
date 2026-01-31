@@ -46,6 +46,9 @@ def create_app(config_class=Config):
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(feed_bp)
 
+    # 豁免 API 蓝图的 CSRF 保护
+    csrf.exempt(api_bp)
+
     # 注入模板全局变量
     @app.context_processor
     def inject_globals():
