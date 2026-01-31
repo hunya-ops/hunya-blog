@@ -5,7 +5,7 @@
 {% block admin_content %}
 <div class="page-header">
     <h1>{{ title }}</h1>
-    <a href="{{ url_for('admin.new_post', post_type='long' if '文章' in title else 'short') }}" class="btn btn-primary">
+    <a href="{{ url_for('admin.new_post', post_type='pulp' if '文章' in title else 'uncut') }}" class="btn btn-primary">
         新建{{ '文章' if '文章' in title else '动态' }}
     </a>
 </div>
@@ -51,8 +51,7 @@
             <td class="actions">
                 <div class="action-group">
                     {% if post.is_published %}
-                    <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}" target="_blank"
-                        class="action-btn">查看</a>
+                    <a href="{{ post.url }}" target="_blank" class="action-btn">查看</a>
                     {% endif %}
                     <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="action-btn">编辑</a>
                     <form method="POST" action="{{ url_for('admin.toggle_publish', post_id=post.id) }}"

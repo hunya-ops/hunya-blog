@@ -51,8 +51,8 @@ def logout():
 @login_required
 def dashboard():
     stats = {
-        'total_posts': Post.query.filter_by(post_type='long').count(),
-        'total_weibo': Post.query.filter_by(post_type='short').count(),
+        'total_posts': Post.query.filter_by(post_type='pulp').count(),
+        'total_weibo': Post.query.filter_by(post_type='uncut').count(),
         'total_tags': Tag.query.count()
     }
     recent_posts = Post.query.order_by(Post.updated_at.desc()).limit(5).all()
@@ -76,19 +76,19 @@ def get_posts_by_type(post_type, title):
 @admin_bp.route('/posts')
 @login_required
 def posts():
-    return get_posts_by_type('long', '文章管理')
+    return get_posts_by_type('pulp', '文章管理')
 
 
 @admin_bp.route('/weibo')
 @login_required
 def weibo():
-    return get_posts_by_type('short', '动态管理')
+    return get_posts_by_type('uncut', '动态管理')
 
 
 @admin_bp.route('/new', methods=['GET', 'POST'])
 @admin_bp.route('/new/<post_type>', methods=['GET', 'POST'])
 @login_required
-def new_post(post_type='short'):
+def new_post(post_type='uncut'):
     if request.method == 'POST':
         post = Post(
             post_type=request.form.get('post_type', post_type),
@@ -102,7 +102,7 @@ def new_post(post_type='short'):
         db.session.add(post)
         db.session.commit()
         flash('发布成功', 'success')
-        return redirect(url_for('admin.posts') if post.post_type == 'long' else url_for('admin.weibo'))
+        return redirect(url_for('admin.posts') if post.post_type == 'pulp' else url_for('admin.weibo'))
 
     return render_template('admin/editor.html', post=None, post_type=post_type)
 
@@ -122,7 +122,7 @@ def edit_post(post_id):
 
         db.session.commit()
         flash('更新成功', 'success')
-        return redirect(url_for('admin.posts') if post.post_type == 'long' else url_for('admin.weibo'))
+        return redirect(url_for('admin.posts') if post.post_type == 'pulp' else url_for('admin.weibo'))
 
     return render_template('admin/editor.html', post=post, post_type=post.post_type)
 
@@ -135,7 +135,7 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     flash('已删除', 'success')
-    return redirect(url_for('admin.posts') if post_type == 'long' else url_for('admin.weibo'))
+    return redirect(url_for('admin.posts') if post_type == 'pulp' else url_for('admin.weibo'))
 
 
 @admin_bp.route('/toggle/<int:post_id>', methods=['POST'])
@@ -359,8 +359,8 @@ def settings_system():
         'processor': platform.processor() or '未知',
         'database_size': db_size,
         'upload_size': upload_size,
-        'total_posts': Post.query.filter_by(post_type='long').count(),
-        'total_weibo': Post.query.filter_by(post_type='short').count(),
+        'total_posts': Post.query.filter_by(post_type='pulp').count(),
+        'total_weibo': Post.query.filter_by(post_type='uncut').count(),
         'server_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'debug_mode': '开启' if current_app.debug else '关闭'
     }

@@ -1,10 +1,10 @@
 {% extends "admin/base.html" %}
 
-{% block title %}{{ '编辑' if post else '新建' }}{{ '文章' if post_type == 'long' else '动态' }} - {{ blog_title }}{% endblock
+{% block title %}{{ '编辑' if post else '新建' }}{{ '文章' if post_type == 'pulp' else '动态' }} - {{ blog_title }}{% endblock
 %}
 
 {% block head %}
-{% if post_type == 'long' %}
+{% if post_type == 'pulp' %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 {% endif %}
 {% endblock %}
@@ -15,7 +15,7 @@
     <input type="hidden" name="post_type" value="{{ post_type }}">
 
     <div class="editor-main">
-        {% if post_type == 'long' %}
+        {% if post_type == 'pulp' %}
         <div class="form-group">
             <input type="text" id="title" name="title" class="form-input title-input"
                 value="{{ post.title if post else '' }}" placeholder="输入标题" required>
@@ -67,7 +67,7 @@
 {% endblock %}
 
 {% block scripts %}
-{% if post_type == 'long' %}
+{% if post_type == 'pulp' %}
 <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 <script>
     const easyMDE = new EasyMDE({

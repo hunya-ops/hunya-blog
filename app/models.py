@@ -16,7 +16,7 @@ post_tags = db.Table('post_tags',
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     short_id = db.Column(db.String(12), unique=True, index=True)
-    post_type = db.Column(db.String(10), default='short')  # 'long' or 'short'
+    post_type = db.Column(db.String(10), default='uncut')  # 'pulp' or 'uncut'
     title = db.Column(db.String(200), nullable=True)
     content = db.Column(db.Text, nullable=False)
     image_urls = db.Column(db.Text, nullable=True)  # 多图URL，逗号分隔
@@ -33,6 +33,18 @@ class Post(db.Model):
     def generate_short_id():
         characters = string.ascii_letters + string.digits
         return ''.join(random.choices(characters, k=12))
+
+    @property
+    def url(self):
+        """Build URL with correct prefix based on post type"""
+        from flask import url_for
+        endpoint = 'main.pulp_detail' if self.post_type == 'pulp' else 'main.uncut_detail'
+        try:
+            return url_for(endpoint, short_id=self.short_id)
+        except:
+            # Fallback if no request context
+            prefix = '/pulp' if self.post_type == 'pulp' else '/uncut'
+            return f"{prefix}/{self.short_id}"
 
     tags = db.relationship('Tag', secondary=post_tags, backref=db.backref('posts', lazy='dynamic'))
     images = db.relationship('Image', backref='post', lazy='dynamic')

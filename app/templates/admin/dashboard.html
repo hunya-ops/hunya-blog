@@ -26,11 +26,11 @@
 
 <!-- 快速操作 -->
 <div class="quick-actions">
-    <a href="{{ url_for('admin.new_post', post_type='long') }}" class="action-card">
+    <a href="{{ url_for('admin.new_post', post_type='pulp') }}" class="action-card">
         <div class="icon">📝</div>
         <span class="label">写文章</span>
     </a>
-    <a href="{{ url_for('admin.new_post', post_type='short') }}" class="action-card">
+    <a href="{{ url_for('admin.new_post', post_type='uncut') }}" class="action-card">
         <div class="icon">💬</div>
         <span class="label">发动态</span>
     </a>
@@ -52,7 +52,7 @@
                 </a>
                 <span class="recent-meta">更新于 {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
             </div>
-            <span class="recent-type">{{ '文章' if post.post_type == 'long' else '动态' }}</span>
+            <span class="recent-type">{{ '文章' if post.post_type == 'pulp' else '动态' }}</span>
         </div>
         {% else %}
         <p class="empty-text">暂无最近活动</p>

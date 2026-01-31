@@ -41,8 +41,8 @@
                     <div class="chart-column" data-tooltip="{{ tooltip }}"
                         onclick="scrollToMonth('{{ year }}', '{{ loop.index }}')">
                         <div class="chart-bar-track">
-                            <div class="chart-bar-segment type-long" style="height: {{ pct_long }}%;"></div>
-                            <div class="chart-bar-segment type-short" style="height: {{ pct_short }}%;"></div>
+                            <div class="chart-bar-segment type-pulp" style="height: {{ pct_long }}%;"></div>
+                            <div class="chart-bar-segment type-uncut" style="height: {{ pct_short }}%;"></div>
                         </div>
                         <span class="chart-label">{{ loop.index }}月</span>
                     </div>
@@ -58,12 +58,12 @@
                         {% for post in year_data['months'][month] %}
                         <li>
                             <time>{{ post.created_at.strftime('%m-%d') }}</time>
-                            <span class="post-type-tag {{ 'short' if post.post_type == 'short' else '' }}">{{ '文章' if
-                                post.post_type == 'long' else '动态' }}</span>
+                            <span class="post-type-tag {{ 'uncut' if post.post_type == 'uncut' else '' }}">{{ '文章' if
+                                post.post_type == 'pulp' else '动态' }}</span>
                             {% if post.title %}
-                            <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.title }}</a>
+                            <a href="{{ post.url }}">{{ post.title }}</a>
                             {% else %}
-                            <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.get_excerpt(60)
+                            <a href="{{ post.url }}">{{ post.get_excerpt(60)
                                 }}</a>
                             {% endif %}
                         </li>

@@ -4,11 +4,11 @@
 <section class="posts-timeline">
     {% for post in posts.items %}
     <article class="post-card {{ post.post_type }}">
-        {% if post.post_type == 'long' and post.title %}
-        <h2><a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.title }}</a></h2>
+        {% if post.post_type == 'pulp' and post.title %}
+        <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
         {% endif %}
         <div class="post-content">
-            {% if post.post_type == 'long' %}
+            {% if post.post_type == 'pulp' %}
             {{ post.get_excerpt() }}
             {% else %}
             <p>{{ post.content }}</p>

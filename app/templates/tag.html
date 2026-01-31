@@ -14,8 +14,8 @@
         <!-- Filter Buttons -->
         <div class="tag-filter">
             <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="long">文章</button>
-            <button class="filter-btn" data-filter="short">动态</button>
+            <button class="filter-btn" data-filter="pulp">文章</button>
+            <button class="filter-btn" data-filter="uncut">动态</button>
         </div>
     </header>
 
@@ -28,13 +28,13 @@
                 {% for post in month_data.posts %}
                 <li data-type="{{ post.post_type }}">
                     <time>{{ post.created_at.strftime('%m-%d') }}</time>
-                    <span class="post-type-tag {{ 'short' if post.post_type == 'short' else '' }}">
-                        {{ '文章' if post.post_type == 'long' else '动态' }}
+                    <span class="post-type-tag {{ 'uncut' if post.post_type == 'uncut' else '' }}">
+                        {{ '文章' if post.post_type == 'pulp' else '动态' }}
                     </span>
                     {% if post.title %}
-                    <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.title }}</a>
+                    <a href="{{ post.url }}">{{ post.title }}</a>
                     {% else %}
-                    <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.get_excerpt(60) }}</a>
+                    <a href="{{ post.url }}">{{ post.get_excerpt(60) }}</a>
                     {% endif %}
                 </li>
                 {% endfor %}

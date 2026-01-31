@@ -13,25 +13,31 @@ def index():
     return render_template('index.html', posts=posts)
 
 
-@main_bp.route('/articles')
+@main_bp.route('/pulp')
 def articles():
-    """Long-form articles only"""
+    """Pulp articles only"""
     page = request.args.get('page', 1, type=int)
-    posts = Post.get_published_posts(post_type='long').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
+    posts = Post.get_published_posts(post_type='pulp').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
     return render_template('index.html', posts=posts, page_title='文章')
 
 
-@main_bp.route('/feeds')
+@main_bp.route('/uncut')
 def feeds():
-    """Short-form feeds/updates only"""
+    """Uncut feeds only"""
     page = request.args.get('page', 1, type=int)
-    posts = Post.get_published_posts(post_type='short').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
+    posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
     return render_template('index.html', posts=posts, page_title='动态')
 
 
-@main_bp.route('/post/<short_id>')
+@main_bp.route('/pulp/<short_id>', endpoint='pulp_detail')
+@main_bp.route('/uncut/<short_id>', endpoint='uncut_detail')
 def post_detail(short_id):
     post = Post.query.filter_by(short_id=short_id).first_or_404()
+    # Redirect if accessed with wrong prefix for SEO and consistency
+    if request.path.startswith('/pulp/') and post.post_type != 'pulp':
+        return redirect(post.url)
+    if request.path.startswith('/uncut/') and post.post_type != 'uncut':
+        return redirect(post.url)
     return render_template('post.html', post=post)
 
 
@@ -126,9 +132,9 @@ def archive():
     stats = []
     for m in range(1, 13):
         month_posts = years_data[current_year]['months'][m]
-        short_count = sum(1 for p in month_posts if p.post_type == 'short')
-        long_count = sum(1 for p in month_posts if p.post_type == 'long')
-        stats.append({'short': short_count, 'long': long_count, 'total': short_count + long_count})
+        uncut_count = sum(1 for p in month_posts if p.post_type == 'uncut')
+        pulp_count = sum(1 for p in month_posts if p.post_type == 'pulp')
+        stats.append({'short': uncut_count, 'long': pulp_count, 'total': uncut_count + pulp_count})
     years_data[current_year]['stats'] = stats
     
     return render_template('archive.html', 
