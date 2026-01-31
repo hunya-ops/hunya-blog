@@ -1,7 +1,10 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+if os.path.exists(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'env')):
+    load_dotenv('env')
+else:
+    load_dotenv()
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
