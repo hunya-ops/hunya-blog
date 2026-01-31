@@ -289,12 +289,14 @@ def settings_basic():
     if request.method == 'POST':
         Setting.set('blog_title', request.form.get('blog_title', ''))
         Setting.set('blog_description', request.form.get('blog_description', ''))
+        Setting.set('api_key', request.form.get('api_key', ''))
         flash('设置已保存', 'success')
         return redirect(url_for('admin.settings_basic'))
 
     return render_template('admin/settings/basic.html',
         blog_title=Setting.get('blog_title', current_app.config['BLOG_TITLE']),
-        blog_description=Setting.get('blog_description', current_app.config['BLOG_DESCRIPTION'])
+        blog_description=Setting.get('blog_description', current_app.config['BLOG_DESCRIPTION']),
+        api_key=Setting.get('api_key', current_app.config.get('API_KEY', ''))
     )
 
 
