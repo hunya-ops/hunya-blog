@@ -5,7 +5,7 @@
     {% for post in posts.items %}
     <article class="post-card {{ post.post_type }}">
         {% if post.post_type == 'long' and post.title %}
-        <h2><a href="{{ url_for('main.post_detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+        <h2><a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.title }}</a></h2>
         {% endif %}
         <div class="post-content">
             {% if post.post_type == 'long' %}

@@ -32,9 +32,9 @@
                         {{ '文章' if post.post_type == 'long' else '动态' }}
                     </span>
                     {% if post.title %}
-                    <a href="{{ url_for('main.post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                    <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.title }}</a>
                     {% else %}
-                    <a href="{{ url_for('main.post_detail', post_id=post.id) }}">{{ post.get_excerpt(60) }}</a>
+                    <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}">{{ post.get_excerpt(60) }}</a>
                     {% endif %}
                 </li>
                 {% endfor %}

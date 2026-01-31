@@ -20,18 +20,25 @@
         <div class="container">
             <nav>
                 <a href="{{ url_for('main.index') }}" class="site-title">{{ blog_title }}</a>
-                <ul>
-                    <li><a href="{{ url_for('main.index') }}"
-                            class="{{ 'active' if request.endpoint == 'main.index' else '' }}">首页</a></li>
-                    <li><a href="{{ url_for('main.articles') }}"
-                            class="{{ 'active' if request.endpoint == 'main.articles' else '' }}">文章</a></li>
-                    <li><a href="{{ url_for('main.feeds') }}"
-                            class="{{ 'active' if request.endpoint == 'main.feeds' else '' }}">动态</a></li>
-                    <li><a href="{{ url_for('main.archive') }}"
-                            class="{{ 'active' if request.endpoint == 'main.archive' else '' }}">归档</a></li>
-                    <li><a href="{{ url_for('main.all_tags') }}"
-                            class="{{ 'active' if request.endpoint == 'main.all_tags' else '' }}">标签</a></li>
-                </ul>
+                <button class="mobile-toggle" aria-label="Menu" id="mobileToggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+                <div class="nav-links" id="navLinks">
+                    <ul>
+                        <li><a href="{{ url_for('main.index') }}"
+                                class="{{ 'active' if request.endpoint == 'main.index' else '' }}">首页</a></li>
+                        <li><a href="{{ url_for('main.articles') }}"
+                                class="{{ 'active' if request.endpoint == 'main.articles' else '' }}">文章</a></li>
+                        <li><a href="{{ url_for('main.feeds') }}"
+                                class="{{ 'active' if request.endpoint == 'main.feeds' else '' }}">动态</a></li>
+                        <li><a href="{{ url_for('main.archive') }}"
+                                class="{{ 'active' if request.endpoint == 'main.archive' else '' }}">归档</a></li>
+                        <li><a href="{{ url_for('main.all_tags') }}"
+                                class="{{ 'active' if request.endpoint == 'main.all_tags' else '' }}">标签</a></li>
+                    </ul>
+                </div>
             </nav>
         </div>
     </header>

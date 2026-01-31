@@ -22,7 +22,7 @@ def rss_feed():
         title = post.title or post.get_excerpt(50)
         pub_date = post.created_at.strftime('%a, %d %b %Y %H:%M:%S +0000')
         # Dynamic absolute URL for post
-        link = url_for('main.post_detail', post_id=post.id, _external=True)
+        link = url_for('main.post_detail', short_id=post.short_id, _external=True)
         
         items.append(f'''    <item>
       <title>{escape_xml(title)}</title>

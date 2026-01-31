@@ -51,7 +51,7 @@
             <td class="actions">
                 <div class="action-group">
                     {% if post.is_published %}
-                    <a href="{{ url_for('main.post_detail', post_id=post.id) }}" target="_blank"
+                    <a href="{{ url_for('main.post_detail', short_id=post.short_id) }}" target="_blank"
                         class="action-btn">查看</a>
                     {% endif %}
                     <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="action-btn">编辑</a>

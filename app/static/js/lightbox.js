@@ -25,8 +25,36 @@
         overlay.querySelector('.lightbox-prev').onclick = prev;
         overlay.querySelector('.lightbox-next').onclick = next;
         overlay.onclick = function (e) {
-            if (e.target === overlay) close();
+            // Close if clicking the overlay but not its children (like the image or buttons)
+            // Or if clicking the container (the area around the image)
+            if (e.target === overlay || e.target.classList.contains('lightbox-container')) {
+                close();
+            }
         };
+
+        // Swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        overlay.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        overlay.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Swipe Left -> Next
+                next();
+            } else if (touchEndX > touchStartX + swipeThreshold) {
+                // Swipe Right -> Prev
+                prev();
+            }
+        }
     }
 
     // 打开 lightbox

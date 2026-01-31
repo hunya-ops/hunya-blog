@@ -29,9 +29,9 @@ def feeds():
     return render_template('index.html', posts=posts, page_title='动态')
 
 
-@main_bp.route('/post/<int:post_id>')
-def post_detail(post_id):
-    post = Post.query.get_or_404(post_id)
+@main_bp.route('/post/<short_id>')
+def post_detail(short_id):
+    post = Post.query.filter_by(short_id=short_id).first_or_404()
     return render_template('post.html', post=post)
 
 
