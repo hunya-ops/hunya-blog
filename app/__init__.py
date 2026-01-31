@@ -7,6 +7,9 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from config import Config
 from werkzeug.middleware.proxy_fix import ProxyFix
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 db = SQLAlchemy()
 login_manager = LoginManager()

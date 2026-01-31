@@ -44,3 +44,4 @@ seed_*.py
 
 # Runtime Data
 data/
+server.log

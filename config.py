@@ -46,7 +46,7 @@ class Config:
     # Upload Configuration
     UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
 
     # Admin Configuration
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin'
