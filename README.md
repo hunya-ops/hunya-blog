@@ -1,6 +1,6 @@
-# Yipai Blog
+# Hunya Blog (昏鸦博客)
 
-一个轻量、现代化的 Flask 博客系统，支持长文章和微博（短内容）两种形式。支持 Docker 一键部署。
+一个轻量、现代化的 Flask 博客系统，支持长文章和微博（短内容）两种形式。支持 Docker 一键部署，专为“昏鸦”打造。
 
 ## 功能特性
 
@@ -21,7 +21,7 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/your-username/yipai-blog.git
+   git clone https://github.com/hunya-ops/hunya-blog.git
    cd yipai-blog
    ```
 
@@ -77,13 +77,13 @@
 
 | 变量名 | 说明 | 默认值 |
 | :--- | :--- | :--- |
-| `ADMIN_PASSWORD` | 管理后台密码 | `admin` |
-| `BLOG_TITLE` | 博客网站标题 | `我的博客` |
-| `BLOG_DESCRIPTION` | 博客网站描述 | `一个简单的博客` |
+| `ADMIN_PASSWORD` | 管理后台登录密码 | `admin` |
+| `BLOG_TITLE` | 博客网站标题 | `昏鸦博客` |
+| `BLOG_DESCRIPTION` | 博客网站描述 | `一个充满梦想的博客` |
+| `PORT` | 容器映射端口 | `5000` |
+| `FLASK_ENV` | 运行环境 (`production`/`development`) | `production` |
+| `SECRET_KEY` | Session 加密密钥 | (推荐不配置，系统会自动生成并持久化) |
 | `DATABASE_URL` | 数据库连接地址 | `sqlite:///data/blog.db` |
-| `FLASK_ENV` | 环境模式 (`production`/`development`) | `production` |
-| `PORT` | 服务端口 | `5000` |
-| `SECRET_KEY` | Session 加密密钥 | (自动生成于data目录) |
 
 ## Nginx & HTTPS 配置 (可选)
 
