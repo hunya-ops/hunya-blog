@@ -36,7 +36,7 @@
    - `BLOG_TITLE`: 博客标题
    - `BLOG_DESCRIPTION`: 博客描述
 
-   *注：`SECRET_KEY` 和数据库文件会自动保存在 `data/` 目录下，该目录已挂载到 Docker 容器，确保数据持久化。*
+   *注：数据库文件会自动保存在 `data/` 目录下，该目录已挂载到 Docker 容器，确保数据持久化。*
 
 3. **启动服务**
    ```bash
