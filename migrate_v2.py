@@ -52,7 +52,17 @@ def migrate_production():
             db.session.commit()
             print(f"✅ Successfully migrated {len(posts)} posts.")
             
-        # 4. Create Index
+        # 4. Update post_type labels
+        print("🏷 Migrating content types (long -> pulp, short -> uncut)...")
+        try:
+            cursor.execute("UPDATE post SET post_type = 'pulp' WHERE post_type = 'long'")
+            cursor.execute("UPDATE post SET post_type = 'uncut' WHERE post_type = 'short'")
+            conn.commit()
+            print("✅ Content types updated.")
+        except Exception as e:
+            print(f"⚠️ Warning during type migration: {e}")
+
+        # 5. Create Index
         try:
             print("⚡️ Creating unique index for short_id...")
             cursor.execute("CREATE UNIQUE INDEX ix_post_short_id ON post (short_id)")
