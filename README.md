@@ -138,6 +138,26 @@ yipai-blog/
 └── run.py               # 启动入口
 ```
 
+## 高级技巧：防止 Git 冲突
+
+### 1. 自定义端口与 IP 绑定
+为了安全，如果您使用了 Nginx 反向代理，通常希望 Docker 只监听 `127.0.0.1`。您可以直接在 `.env` 中添加变量，而无需修改 `docker-compose.yml`：
+- `DOCKER_BIND=127.0.0.1` (默认 0.0.0.0)
+- `PORT=8080` (默认 5000)
+
+### 2. 使用 docker-compose.override.yml
+如果您需要更深度的定制（例如添加新的服务、修改卷挂载地址），**千万不要修改** `docker-compose.yml`。
+
+只需在同级目录下创建一个 `docker-compose.override.yml` 文件：
+```yaml
+services:
+  web:
+    # 例如：在这里添加您自己需要的卷挂载
+    volumes:
+      - /opt/my-backup:/app/backup
+```
+Docker Compose 会自动合并这两个文件。由于该文件通常被包含在 `.gitignore` 中（本项目已包含），以后您执行 `git pull` 更新项目代码时，绝对不会产生文件冲突。
+
 ## License
 
 MIT
