@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}标签 - {{ blog_title }}{% endblock %}
+
+{% block content %}
+<div class="tags-page">
+    <div class="treemap-container" id="treemap">
+        <!-- Treemap will be rendered by JavaScript -->
+    </div>
+</div>
+
+<script id="tagDataScript" type="application/json">
+{{ tag_data | tojson | safe }}
+</script>
+<script id="untaggedData" type="application/json">
+{"count": {{ untagged_count }}, "percentage": {{ untagged_percentage }}}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var container = document.getElementById('treemap');
+        var containerWidth = container.offsetWidth;
+        var containerHeight = Math.max(500, containerWidth * 0.6);
+        container.style.height = containerHeight + 'px';
+
+        // Data from backend (via JSON)
+        var rawTagData = JSON.parse(document.getElementById('tagDataScript').textContent);
+        var untaggedInfo = JSON.parse(document.getElementById('untaggedData').textContent);
+
+        var tagData = rawTagData.map(function (tag) {
+            return { name: tag.name, count: tag.count, percentage: tag.percentage };
+        });
+
+        if (untaggedInfo.count > 0) {
+            tagData.push({ name: "无标签", count: untaggedInfo.count, percentage: untaggedInfo.percentage, isUntagged: true });
+        }
+
+        if (tagData.length === 0) {
+            container.innerHTML = '<p class="empty-state">暂无内容</p>';
+            return;
+        }
+
+        // Sort by count descending
+        tagData.sort(function (a, b) { return b.count - a.count; });
+
+        // Assign colors
+        tagData.forEach(function (item, index) {
+            if (item.isUntagged) {
+                item.hue = 0;
+                item.saturation = 0;
+            } else {
+                item.hue = (index * 47) % 360;
+                item.saturation = 65;
+            }
+        });
+
+        // Squarified Treemap
+        function squarify(items, x, y, width, height) {
+            if (items.length === 0) return [];
+            var totalValue = items.reduce(function (sum, item) { return sum + item.percentage; }, 0);
+            var results = [];
+            layoutRow(items, x, y, width, height, totalValue, results);
+            return results;
+        }
+
+        function layoutRow(items, x, y, width, height, totalValue, results) {
+            if (items.length === 0) return;
+
+            var isHorizontal = width >= height;
+            var currentRow = [];
+            var currentSum = 0;
+
+            var rowSize = isHorizontal ? height : width;
+            var rowLength = isHorizontal ? width : height;
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                currentRow.push(item);
+                currentSum += item.percentage;
+
+                var ratio1 = currentRow.length <= 3 ? getWorstRatio(currentRow, rowSize, currentSum, totalValue) : Infinity;
+
+                if (i < items.length - 1) {
+                    var nextItem = items[i + 1];
+                    var testRow = currentRow.concat([nextItem]);
+                    var testSum = currentSum + nextItem.percentage;
+                    var ratio2 = getWorstRatio(testRow, rowSize, testSum, totalValue);
+
+                    if (ratio2 > ratio1 * 1.5 || currentRow.length >= 5) {
+                        break;
+                    }
+                }
+            }
+
+            var rowFraction = currentSum / totalValue;
+            var rowThickness = rowFraction * rowLength;
+
+            var offset = 0;
+            currentRow.forEach(function (item) {
+                var itemFraction = item.percentage / currentSum;
+                var itemSize = itemFraction * rowSize;
+
+                var rect;
+                if (isHorizontal) {
+                    rect = { x: x, y: y + offset, width: rowThickness, height: itemSize, item: item };
+                } else {
+                    rect = { x: x + offset, y: y, width: itemSize, height: rowThickness, item: item };
+                }
+                results.push(rect);
+                offset += itemSize;
+            });
+
+            var remaining = items.slice(currentRow.length);
+            if (remaining.length > 0) {
+                var remainingValue = totalValue - currentSum;
+                if (isHorizontal) {
+                    layoutRow(remaining, x + rowThickness, y, width - rowThickness, height, remainingValue, results);
+                } else {
+                    layoutRow(remaining, x, y + rowThickness, width, height - rowThickness, remainingValue, results);
+                }
+            }
+        }
+
+        function getWorstRatio(row, size, sum, total) {
+            return row.reduce(function (worst, item) {
+                var itemFrac = item.percentage / sum;
+                var w = size * itemFrac;
+                var h = (sum / total) * size;
+                var ratio = Math.max(w / h, h / w);
+                return Math.max(worst, ratio);
+            }, 1);
+        }
+
+        // Calculate and render
+        var rects = squarify(tagData, 0, 0, containerWidth, containerHeight);
+
+        rects.forEach(function (rect) {
+            var div = document.createElement('div');
+            div.className = 'treemap-cell' + (rect.item.isUntagged ? ' untagged' : '');
+            div.style.left = (rect.x + 1) + 'px';
+            div.style.top = (rect.y + 1) + 'px';
+            div.style.width = (rect.width - 2) + 'px';
+            div.style.height = (rect.height - 2) + 'px';
+
+            if (!rect.item.isUntagged) {
+                div.style.setProperty('--cell-hue', rect.item.hue);
+            }
+
+            var nameSpan = document.createElement('span');
+            nameSpan.className = 'cell-name';
+            nameSpan.textContent = rect.item.isUntagged ? rect.item.name : '#' + rect.item.name;
+
+            var countSpan = document.createElement('span');
+            countSpan.className = 'cell-count';
+            countSpan.textContent = rect.item.count + ' 篇';
+
+            div.appendChild(nameSpan);
+            div.appendChild(countSpan);
+
+            // All cells are clickable
+            div.style.cursor = 'pointer';
+            div.onclick = function () {
+                var loader = document.getElementById('globalLoader');
+                var spinner = document.getElementById('globalSpinner');
+                if (loader) loader.classList.add('visible');
+                if (spinner) spinner.classList.add('visible');
+                setTimeout(function () {
+                    window.location.href = '/tag/' + encodeURIComponent(rect.item.name);
+                }, 400);
+            };
+
+            container.appendChild(div);
+        });
+    });
+</script>
+{% endblock %}

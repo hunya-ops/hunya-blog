@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="posts-timeline">
+    {% for post in posts.items %}
+    <article class="post-card {{ post.post_type }}">
+        {% if post.post_type == 'long' and post.title %}
+        <h2><a href="{{ url_for('main.post_detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+        {% endif %}
+        <div class="post-content">
+            {% if post.post_type == 'long' %}
+            {{ post.get_excerpt() }}
+            {% else %}
+            <p>{{ post.content }}</p>
+            {% set images = post.get_image_list() %}
+            {% if images %}
+            <div class="image-grid-display count-{{ images|length }}">
+                {% for img in images %}
+                <div class="grid-item"><img src="{{ img }}" alt="" loading="lazy"></div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+        <footer class="post-footer">
+            <time datetime="{{ post.created_at.isoformat() }}">
+                {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </time>
+
+        </footer>
+    </article>
+    {% else %}
+    <p>暂无文章</p>
+    {% endfor %}
+</section>
+
+{% if posts.pages > 1 %}
+<nav class="pagination">
+    {% if posts.has_prev %}
+    <a href="{{ url_for(request.endpoint, page=posts.prev_num) }}">← 上一页</a>
+    {% endif %}
+    <span>第 {{ posts.page }} / {{ posts.pages }} 页</span>
+    {% if posts.has_next %}
+    <a href="{{ url_for(request.endpoint, page=posts.next_num) }}">下一页 →</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endblock %}

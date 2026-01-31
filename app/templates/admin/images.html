@@ -1,0 +1,139 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="page-header">
+    <h1>图片管理</h1>
+    <div class="header-actions">
+        <form action="{{ url_for('admin.clean_unused_images') }}" method="POST"
+            onsubmit="return confirm('确定要删除所有未使用的图片吗？此操作不可恢复！');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary" style="background-color: #ff3b30;">
+                <i class="ri-delete-bin-line"></i> 一键清理未使用
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="dashboard-hero" style="margin-bottom: 24px;">
+    <p>共 {{ total }} 张图片，其中 {{ used_count }} 张正在使用。<br>
+        <span style="font-size: 13px; color: #86868b;">注意：未使用的图片是指在文章或动态中未被引用的文件。</span>
+    </p>
+</div>
+
+<!-- 图片网格 -->
+<div class="image-grid">
+    {% for file in files %}
+    <div class="image-card {% if not file.is_used %}unused{% endif %}">
+        <div class="img-wrapper">
+            <img src="{{ file.url }}" alt="{{ file.name }}" loading="lazy">
+            {% if not file.is_used %}
+            <div class="unused-tag">未使用</div>
+            {% endif %}
+        </div>
+        <div class="img-info">
+            <div class="img-name" title="{{ file.name }}">{{ file.name }}</div>
+            <div class="img-meta">
+                <span>{{ file.size_fmt }}</span>
+                <span>{{ file.date_fmt }}</span>
+            </div>
+            <div class="img-actions">
+                <a href="{{ file.url }}" target="_blank" class="action-btn">查看</a>
+                <form action="{{ url_for('admin.delete_image', filename=file.name) }}" method="POST"
+                    onsubmit="return confirm('确定删除这张图片吗？');" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="action-btn danger">删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .image-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid var(--apple-border);
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .image-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--apple-shadow-md);
+    }
+
+    .image-card.unused {
+        border-color: #ff3b30;
+        opacity: 0.8;
+    }
+
+    .image-card.unused:hover {
+        opacity: 1;
+    }
+
+    .img-wrapper {
+        height: 180px;
+        width: 100%;
+        background: #f5f5f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .unused-tag {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(255, 59, 48, 0.9);
+        color: white;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .img-info {
+        padding: 12px;
+    }
+
+    .img-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--apple-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+    }
+
+    .img-meta {
+        font-size: 12px;
+        color: var(--apple-secondary);
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .img-actions {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 8px;
+        border-top: 1px solid var(--apple-border);
+    }
+</style>
+{% endblock %}

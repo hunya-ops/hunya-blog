@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}管理后台{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=2">
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('admin.dashboard') }}">{{ blog_title }}</a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-title">内容管理</div>
+                    <a href="{{ url_for('admin.posts') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.posts' else '' }}">文章管理</a>
+                    <a href="{{ url_for('admin.weibo') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.weibo' else '' }}">动态管理</a>
+                    <a href="{{ url_for('admin.tags') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.tags' else '' }}">标签管理</a>
+                    <a href="{{ url_for('admin.images') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.images' else '' }}">图片管理</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">系统设置</div>
+                    <a href="{{ url_for('admin.settings_basic') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.settings_basic' else '' }}">基本信息</a>
+                    <a href="{{ url_for('admin.settings_password') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.settings_password' else '' }}">管理密码</a>
+                    <a href="{{ url_for('admin.settings_system') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.settings_system' else '' }}">系统信息</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="{{ url_for('main.index') }}" target="_blank">查看站点</a>
+                <a href="{{ url_for('admin.logout') }}">退出登录</a>
+            </div>
+        </aside>
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endwith %}
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

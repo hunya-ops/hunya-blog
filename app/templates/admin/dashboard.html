@@ -1,0 +1,62 @@
+{% extends "admin/base.html" %}
+
+{% block title %}管理后台 - {{ blog_title }}{% endblock %}
+
+{% block admin_content %}
+<div class="dashboard-hero">
+    <h2>欢迎回来</h2>
+    <p>今天是 {{ now.strftime('%Y年%m月%d日') }}，开始管理您的内容吧。</p>
+</div>
+
+<!-- 统计概览 -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-label">文章总数</span>
+        <div class="stat-value">{{ stats.total_posts }}</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">动态总数</span>
+        <div class="stat-value">{{ stats.total_weibo }}</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">标签总数</span>
+        <div class="stat-value">{{ stats.total_tags }}</div>
+    </div>
+</div>
+
+<!-- 快速操作 -->
+<div class="quick-actions">
+    <a href="{{ url_for('admin.new_post', post_type='long') }}" class="action-card">
+        <div class="icon">📝</div>
+        <span class="label">写文章</span>
+    </a>
+    <a href="{{ url_for('admin.new_post', post_type='short') }}" class="action-card">
+        <div class="icon">💬</div>
+        <span class="label">发动态</span>
+    </a>
+    <a href="{{ url_for('main.index') }}" class="action-card" target="_blank">
+        <div class="icon">🌐</div>
+        <span class="label">查看站点</span>
+    </a>
+</div>
+
+<!-- 最近活动 -->
+<div class="recent-section">
+    <h3>最近活动</h3>
+    <div class="recent-list">
+        {% for post in recent_posts %}
+        <div class="recent-item">
+            <div class="recent-content">
+                <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="recent-title">
+                    {{ post.title if post.title else post.get_excerpt(40) }}
+                </a>
+                <span class="recent-meta">更新于 {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <span class="recent-type">{{ '文章' if post.post_type == 'long' else '动态' }}</span>
+        </div>
+        {% else %}
+        <p class="empty-text">暂无最近活动</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

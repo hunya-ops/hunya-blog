@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - {{ blog_title }}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* Hide site header and footer on login page for immersive experience */
+    .site-header,
+    footer {
+        display: none !important;
+    }
+
+    main.container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-screen">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>管理员登录</h1>
+            <p>请验证您的身份以继续</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="login-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        <form method="POST" class="login-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="form-group">
+                <input type="password" id="password" name="password" class="form-input" placeholder="输入管理密码" required
+                    autofocus>
+            </div>
+            <button type="submit" class="login-btn">登录</button>
+            <div class="login-footer">
+                <a href="{{ url_for('main.index') }}" class="back-link">返回首页</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

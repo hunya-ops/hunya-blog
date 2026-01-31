@@ -1,0 +1,156 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ '编辑' if post else '新建' }}{{ '文章' if post_type == 'long' else '动态' }} - {{ blog_title }}{% endblock
+%}
+
+{% block head %}
+{% if post_type == 'long' %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+{% endif %}
+{% endblock %}
+
+{% block admin_content %}
+<form method="POST" id="post-form" class="editor-layout">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="post_type" value="{{ post_type }}">
+
+    <div class="editor-main">
+        {% if post_type == 'long' %}
+        <div class="form-group">
+            <input type="text" id="title" name="title" class="form-input title-input"
+                value="{{ post.title if post else '' }}" placeholder="输入标题" required>
+        </div>
+        <div class="form-group">
+            <textarea id="content" name="content" class="form-textarea">{{ post.content if post else '' }}</textarea>
+        </div>
+        {% else %}
+        <div class="form-group">
+            <textarea id="content" name="content" class="form-textarea short-content"
+                placeholder="写点什么...">{{ post.content if post else '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>图片（最多9张，支持拖拽和粘贴）</label>
+            <div class="multi-image-upload" id="upload-area">
+                <div id="image-grid" style="display: contents;">
+                    <div class="add-image-btn" id="add-image-btn">
+                        <span>+</span>
+                        <small>添加图片</small>
+                    </div>
+                </div>
+                <input type="file" id="image-input" accept="image/*" multiple style="display:none">
+            </div>
+            <input type="hidden" name="image_urls" id="image-urls" value="{{ post.image_urls if post else '' }}">
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="editor-sidebar">
+        <div class="sidebar-box">
+            <h3>发布设置</h3>
+            <div class="sidebar-actions">
+                <button type="submit" name="action" value="publish" class="btn btn-primary btn-block">保存并发布</button>
+                <button type="submit" name="action" value="draft" class="btn btn-secondary btn-block">保存草稿</button>
+            </div>
+        </div>
+
+        <div class="sidebar-box">
+            <h3>标签</h3>
+            <div class="tags-input-wrapper">
+                <div class="tags-list" id="tags-list"></div>
+                <input type="text" id="tag-input" class="tag-input" placeholder="输入后按回车">
+            </div>
+            <input type="hidden" name="tags" id="tags-hidden"
+                value="{{ post.tags|map(attribute='name')|join(',') if post else '' }}">
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+{% if post_type == 'long' %}
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<script>
+    const easyMDE = new EasyMDE({
+        element: document.getElementById('content'),
+        spellChecker: false,
+        status: false,
+        minHeight: "500px",
+        placeholder: '使用 Markdown 格式书写...',
+        toolbar: ['bold', 'italic', 'heading', '|',
+            'quote', 'unordered-list', 'ordered-list', '|',
+            'link', 'image', '|', 'preview', 'fullscreen'],
+        // 启用图片上传和粘贴
+        uploadImage: true,
+        imageUploadEndpoint: "/api/upload",
+        imageUploadFunction: function (file, onSuccess, onError) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+            fetch('/api/upload', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        onSuccess(data.url);
+                    } else {
+                        onError(data.error || '上传失败');
+                    }
+                })
+                .catch(err => {
+                    onError('上传失败: ' + err.message);
+                });
+        }
+    });
+</script>
+{% else %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+{% endif %}
+
+<script>
+    // 标签输入功能
+    const tagInput = document.getElementById('tag-input');
+    const tagsList = document.getElementById('tags-list');
+    const tagsHidden = document.getElementById('tags-hidden');
+
+    let tags = tagsHidden.value ? tagsHidden.value.split(',').filter(t => t.trim()) : [];
+
+    function renderTags() {
+        tagsList.innerHTML = tags.map((tag, i) => `
+        <span class="tag-item">
+            <span class="tag-text">${tag}</span>
+            <span class="remove-tag" data-index="${i}">&times;</span>
+        </span>
+    `).join('');
+        tagsHidden.value = tags.join(',');
+    }
+
+    tagInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = tagInput.value.trim();
+            if (val && !tags.includes(val)) {
+                tags.push(val);
+                renderTags();
+            }
+            tagInput.value = '';
+        }
+    });
+
+    tagsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-tag')) {
+            const idx = parseInt(e.target.dataset.index);
+            tags.splice(idx, 1);
+            renderTags();
+        }
+    });
+
+    renderTags();
+</script>
+{% endblock %}

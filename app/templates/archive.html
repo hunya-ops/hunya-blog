@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}归档 - {{ blog_title }}{% endblock %}
+
+{% block content %}
+<div class="archive-container">
+    <div class="archive-layout">
+        <!-- Content Column (Left) -->
+        <div class="archive-main">
+            <!-- Loading Overlay -->
+            <div class="archive-loading-overlay" id="archiveLoader"></div>
+            <div class="spinner" id="archiveSpinner"></div>
+
+            {% for year in sorted_years %}
+            {% set year_data = years_data[year] %}
+            <div id="year-{{ year }}" class="year-section active">
+
+                <!-- Chart -->
+                <div class="year-chart">
+                    {% set max_total = 0 %}
+                    {% for s in year_data['stats'] %}
+                    {% if s.total > max_total %}{% set max_total = s.total %}{% endif %}
+                    {% endfor %}
+                    {% if max_total == 0 %} {% set max_total = 1 %} {% endif %}
+
+                    {% for s in year_data['stats'] %}
+                    {% set pct_long = (s.long / max_total) * 100 %}
+                    {% set pct_short = (s.short / max_total) * 100 %}
+
+                    {% set tooltip = '' %}
+                    {% if s.long > 0 and s.short > 0 %}
+                    {% set tooltip = s.long ~ ' 文章 / ' ~ s.short ~ ' 动态' %}
+                    {% elif s.long > 0 %}
+                    {% set tooltip = s.long ~ ' 文章' %}
+                    {% elif s.short > 0 %}
+                    {% set tooltip = s.short ~ ' 动态' %}
+                    {% else %}
+                    {% set tooltip = '空空如也' %}
+                    {% endif %}
+
+                    <div class="chart-column" data-tooltip="{{ tooltip }}"
+                        onclick="scrollToMonth('{{ year }}', '{{ loop.index }}')">
+                        <div class="chart-bar-track">
+                            <div class="chart-bar-segment type-long" style="height: {{ pct_long }}%;"></div>
+                            <div class="chart-bar-segment type-short" style="height: {{ pct_short }}%;"></div>
+                        </div>
+                        <span class="chart-label">{{ loop.index }}月</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Monthly Lists -->
+                {% for month in range(12, 0, -1) %}
+                {% if year_data['months'][month] %}
+                <section class="archive-month" id="archive-{{ year }}-{{ month }}">
+                    <h2>{{ month }}月</h2>
+                    <ul class="archive-list">
+                        {% for post in year_data['months'][month] %}
+                        <li>
+                            <time>{{ post.created_at.strftime('%m-%d') }}</time>
+                            <span class="post-type-tag {{ 'short' if post.post_type == 'short' else '' }}">{{ '文章' if
+                                post.post_type == 'long' else '动态' }}</span>
+                            {% if post.title %}
+                            <a href="{{ url_for('main.post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                            {% else %}
+                            <a href="{{ url_for('main.post_detail', post_id=post.id) }}">{{ post.get_excerpt(60) }}</a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            {% if not sorted_years %}
+            <p style="text-align: center; padding: 40px; color: var(--text-secondary);">暂无文章</p>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Column (Right) -->
+        <aside class="archive-sidebar">
+            <ul class="year-nav">
+                {% for year in all_years %}
+                <li>
+                    <a href="{{ url_for('main.archive', year=year) }}"
+                        class="{{ 'active' if year == current_year else '' }}" onclick="handleYearSwitch(event, this)">
+                        {{ year }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
+    </div>
+</div>
+
+<script>
+    function handleYearSwitch(e, link) {
+        e.preventDefault(); // Stop immediate navigation
+
+        const targetUrl = link.href;
+
+        // Show loading animation immediately
+        const loader = document.getElementById('archiveLoader');
+        const spinner = document.getElementById('archiveSpinner');
+        const mainContent = document.querySelector('.archive-main');
+
+        loader.classList.add('visible');
+        spinner.classList.add('visible');
+        mainContent.classList.add('loading');
+
+        // Immediate visual feedback on sidebar
+        document.querySelectorAll('.year-nav a').forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+
+        // Minimum animation time: 600ms, then navigate
+        setTimeout(() => {
+            window.location.href = targetUrl;
+        }, 600);
+    }
+
+    function scrollToMonth(year, month) {
+        const targetId = 'archive-' + year + '-' + month;
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+            const headerOffset = 140;
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+
+            // Highlight effect
+            const title = targetElement.querySelector('h2');
+            if (title) {
+                title.style.transition = 'all 0.3s';
+                title.style.color = 'var(--primary)';
+                title.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    title.style.color = '';
+                    title.style.transform = '';
+                }, 1000);
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# Flask
+instance/
+.webassets-cache
+
+# 环境变量
+.env
+
+# 数据库
+*.db
+*.sqlite
+
+# 上传文件（可选保留）
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
+
+# Dev Tools
+seed_*.py
+
+# Runtime Data
+data/
