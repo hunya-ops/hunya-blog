@@ -71,21 +71,29 @@ def upload_image():
         try:
             file.seek(0)
             img = PILImage.open(file)
-        except Exception:
+        except Exception as e:
             # Fallback for some HEIC files that might fail initial open
             import pillow_heif
             file.seek(0)
-            if pillow_heif.is_supported(file):
-                file.seek(0)
-                heif_file = pillow_heif.read_heif(file)
-                img = PILImage.frombytes(
-                    heif_file.mode,
-                    heif_file.size,
-                    heif_file.data,
-                    "raw",
-                )
-            else:
-                raise
+            try:
+                if pillow_heif.is_supported(file):
+                    file.seek(0)
+                    # Use more robust loading if available
+                    heif_file = pillow_heif.read_heif(file)
+                    img = PILImage.frombytes(
+                        heif_file.mode,
+                        heif_file.size,
+                        heif_file.data,
+                        "raw",
+                    )
+                else:
+                    raise e
+            except ValueError as ve:
+                if "auxiliary" in str(ve):
+                    return jsonify({'error': '图片包含过多辅助信息（如实景照片/人像数据），请尝试在手机上重新保存为普通 JPEG 后上传'}), 400
+                raise ve
+            except Exception:
+                raise e
 
         if img.mode in ('RGBA', 'P'):
             img = img.convert('RGB')
