@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}404 - 页面未找到 - {{ blog_title }}{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-icon">🔍</div>
+    <h1>404</h1>
+    <p class="error-message">抱歉，您访问的页面不存在</p>
+    <p class="error-hint">可能已被删除，或者您输入的地址有误</p>
+    <a href="{{ url_for('main.index') }}" class="btn">返回首页</a>
+</div>
+{% endblock %}
