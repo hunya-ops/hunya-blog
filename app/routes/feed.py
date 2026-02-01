@@ -1,18 +1,20 @@
 import re
 from flask import Blueprint, Response, current_app, url_for
-from app.models import Post
+from app.models import Post, Setting
 
 feed_bp = Blueprint('feed', __name__)
 
 
 @feed_bp.route('/feed.xml')
 def rss_feed():
-    posts = Post.query.filter_by(is_published=True)\
+    # Only output articles (pulp), not dynamic posts (uncut)
+    posts = Post.query.filter_by(is_published=True, post_type='pulp')\
         .order_by(Post.created_at.desc())\
         .limit(20).all()
 
-    blog_title = current_app.config['BLOG_TITLE']
-    blog_desc = current_app.config['BLOG_DESCRIPTION']
+    # Use database settings with config fallback
+    blog_title = Setting.get('blog_title', current_app.config['BLOG_TITLE'])
+    blog_desc = Setting.get('blog_description', current_app.config['BLOG_DESCRIPTION'])
     
     # Dynamically generate absolute URL based on request headers
     blog_home_url = url_for('main.index', _external=True)
