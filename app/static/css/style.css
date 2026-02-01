@@ -380,9 +380,11 @@ main.container {
     margin-bottom: 0;
 }
 
-.post-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--glass-shadow-hover);
+@media (hover: hover) {
+    .post-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--glass-shadow-hover);
+    }
 }
 
 .post-card h2 {
@@ -2058,12 +2060,14 @@ footer a:hover {
     animation: shimmer 1.5s infinite linear;
 }
 
-.image-placeholder:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-}
+@media (hover: hover) {
+    .image-placeholder:hover {
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    }
 
-.image-placeholder:hover img {
-    transform: scale(1.08);
+    .image-placeholder:hover img {
+        transform: scale(1.08);
+    }
 }
 
 .image-grid-display .image-placeholder {
