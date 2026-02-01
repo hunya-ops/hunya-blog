@@ -12,11 +12,7 @@
             <time datetime="{{ post.created_at.isoformat() }}">
                 {{ post.created_at.strftime('%Y年%m月%d日 %H:%M') }}
             </time>
-            {% if post.tags %}
-            · {% for tag in post.tags %}
-            <a href="{{ url_for('main.tag_posts', tag_name=tag.name) }}">#{{ tag.name }}</a>
-            {% endfor %}
-            {% endif %}
+
             {% if current_user.is_authenticated %}
             · <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="edit-link">编辑</a>
             {% endif %}
@@ -37,6 +33,13 @@
         {{ post.content|markdown }}
         {% endif %}
     </div>
+    {% if post.tags %}
+    <div class="post-tags-footer">
+        {% for tag in post.tags %}
+        <a href="{{ url_for('main.tag_posts', tag_name=tag.name) }}" class="tag-pill">#{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
 </article>
 
 <nav class="post-nav">

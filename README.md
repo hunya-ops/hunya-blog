@@ -1,32 +1,41 @@
 # Hunya Blog (昏鸦博客)
 
-一个轻量、现代化的 Flask 博客系统，支持长文章和微博（短内容）两种形式。支持 Docker 一键部署，专为“昏鸦”打造。
+> **"Pulp is polished, Uncut is raw."**
+> 纸浆是打磨过的思考，原石是未切割的生活。
+
+**Hunya Blog** 是一个专为创作者打造的极简主义现代化博客系统。它不仅仅是一个内容管理工具，更是一种对“创作”的双重定义。
+
+## 核心理念
+
+我们认为，创作不应只有一种形态。Hunya Blog 独创了双内容流设计：
+
+*   **Pulp (文章)**：用于承载深度思考、技术沉淀或长篇叙事。支持完整的 Markdown 编辑体验，就像纸浆（Pulp）经过沉淀与打磨，呈现出最完美的质感。
+*   **Uncut (动态)**：捕捉稍纵即逝的灵感、生活碎片或即时状态。支持文字 + 多图（最多9张），像未切割（Uncut）的原石，保留最真实、粗粝的生活纹理。
 
 ## 功能特性
 
-- **长文章**：支持标题 + Markdown 编辑器
-- **微博**：支持文字 + 多图（最多9张）
-- **标签系统**：文章和微博都可添加标签
-- **图片管理**：支持粘贴上传、拖拽上传
-- **安全**：内置 CSRF 保护，支持安全 Cookie，**自动管理密钥**
-- **部署**：原生支持 Docker 和 Docker Compose，**数据自动持久化**
-- **RSS 订阅**
-- **响应式设计**：纯 CSS 实现，无重型前端框架依赖
+*   **双模内容**：**Pulp**（长文 + Markdown）与 **Uncut**（短文 + 多图）并存。
+*   **现代设计**：采用 **Apple Pro Inspired** 设计语言，融合 **Glassmorphism**（毛玻璃）与 **Mesh Gradients**（弥散光感），视觉体验轻盈通透。
+*   **标签系统**：标签云可视化（Treemap），支持对文章和动态进行统一归类。
+*   **图片管理**：支持粘贴/拖拽上传，**支持 HEIC 格式秒转 JPEG**，后台含未使用图片清理功能。
+*   **极简部署**：原生 Docker 支持，数据自动持久化，内置 CSRF 保护与密钥自动管理。
+*   **纯粹体验**：零前端框架依赖，纯手写 CSS，极致轻量，响应式适配移动端。
+*   **RSS 订阅**：内置 RSS 源支持。
 
 ## 快速开始
 
 ### 方式一：使用 Docker (推荐)
 
-最简单的部署方式。
+最简单的部署方式，只需几分钟即可上线。
 
 1. **克隆项目**
    ```bash
    git clone https://github.com/hunya-ops/hunya-blog.git
-   cd yipai-blog
+   cd hunya-blog
    ```
 
 2. **初始化配置**
-   运行设置脚本，它会为您自动创建配置文件：
+   运行设置脚本，自动创建配置文件：
    ```bash
    ./setup.sh
    # 或者手动复制：cp env.example env
@@ -34,16 +43,13 @@
    **必填配置项** (编辑生成的 `env` 文件):
    - `ADMIN_PASSWORD`: 管理员后台登录密码
    - `BLOG_TITLE`: 博客标题
-   - `BLOG_DESCRIPTION`: 博客描述
 
-    *注：数据库文件会自动保存在 `data/` 目录下，该目录已挂载到 Docker 容器，确保数据持久化。*
+   *注：数据库文件会自动保存在 `data/` 目录下，该目录已挂载到 Docker 容器，确保数据持久化。*
 
 3. **启动服务**
    ```bash
    docker compose up -d --build
    ```
-   *注：如果是旧版 Docker Desktop，可能需要使用 `docker-compose` 命令。*
-
    访问 `http://localhost:5000` 即可看到博客。
 
 ### 方式二：本地开发运行
@@ -80,10 +86,37 @@
 | `ADMIN_PASSWORD` | 管理后台登录密码 | `admin` |
 | `BLOG_TITLE` | 博客网站标题 | `昏鸦博客` |
 | `BLOG_DESCRIPTION` | 博客网站描述 | `一个充满梦想的博客` |
+| `SECRET_KEY` | Session 加密密钥 | (推荐不配置，系统会自动生成并持久化在 `data/.secret_key`) |
+| `API_KEY` | API 访问密钥 (用于 iOS 快捷指令发布动态等) | `dev-token-123` |
+| `DOCKER_BIND` | Docker 监听地址 | `0.0.0.0` |
 | `PORT` | 容器映射端口 | `5000` |
-| `FLASK_ENV` | 运行环境 (`production`/`development`) | `production` |
-| `SECRET_KEY` | Session 加密密钥 | (推荐不配置，系统会自动生成并持久化) |
-| `DATABASE_URL` | 数据库连接地址 | `sqlite:///data/blog.db` |
+| `FLASK_ENV` | 运行环境 | `production` |
+
+## API 文档
+
+Hunya Blog 提供了简单的 REST API，配合 **快捷指令 (Shortcuts)** 或自动化脚本，可快速发布动态。
+
+所有 API 请求头需包含：`X-API-Key: <你的 API_KEY>`
+
+### 1. 上传图片
+
+*   **URL**: `POST /api/upload`
+*   **Body**: `form-data`
+    *   `image`: 图片文件
+*   **Response**: `{"success": true, "url": "/static/uploads/..."}`
+
+### 2. 发布动态 (Uncut)
+
+*   **URL**: `POST /api/posts`
+*   **Body**: `application/json`
+    ```json
+    {
+      "content": "此刻的想法...",
+      "image_urls": "http://img1.jpg,http://img2.jpg", 
+      "tags": ["生活", "随笔"]
+    }
+    ```
+    *注：`image_urls` 可留空，多张图片用逗号分隔（图片需先上传获取 URL）。*
 
 ## Nginx & HTTPS 配置 (可选)
 
@@ -108,55 +141,31 @@ server {
 }
 ```
 
-### 2. 使用 Certbot 开启 HTTPS
+### 2. 安全建议
 
-推荐使用 Certbot 自动申请免费证书：
+为了安全，您可以让 Docker 只监听本地回环地址（`127.0.0.1`），防止通过 IP 直接访问：
 
-```bash
-# Ubuntu/Debian 安装
-sudo apt update
-sudo apt install certbot python3-certbot-nginx
-
-# 一键申请并自动修改 Nginx 配置
-sudo certbot --nginx -d your-domain.com
+在 `env` 文件中添加：
+```properties
+DOCKER_BIND=127.0.0.1
 ```
 
 ## 目录结构
 
 ```
-yipai-blog/
+hunya-blog/
 ├── app/                  # 应用源码
 │   ├── routes/           # 视图路由
 │   ├── models.py         # 数据库模型
 │   ├── templates/        # HTML 模板
 │   └── static/           # 静态资源 (CSS/JS/Uploads)
-├── data/                 # 数据存储 (DB, Keys) - 自动创建
+├── data/                 # 数据存储 (DB, Keys) - 自动创建，需备份
 ├── config.py             # 配置加载逻辑
 ├── Dockerfile            # Docker 构建文件
 ├── docker-compose.yml    # Docker Compose编排
 ├── requirements.txt      # Python依赖
-└── run.py               # 启动入口
+└── run.py                # 启动入口
 ```
-
-## 高级技巧：防止 Git 冲突
-
-### 1. 自定义端口与 IP 绑定
-为了安全，如果您使用了 Nginx 反向代理，通常希望 Docker 只监听 `127.0.0.1`。您可以直接在 `env` 中添加变量，而无需修改 `docker-compose.yml`：
-- `DOCKER_BIND=127.0.0.1` (默认 0.0.0.0)
-- `PORT=8080` (默认 5000)
-
-### 2. 使用 docker-compose.override.yml
-如果您需要更深度的定制（例如添加新的服务、修改卷挂载地址），**千万不要修改** `docker-compose.yml`。
-
-只需在同级目录下创建一个 `docker-compose.override.yml` 文件：
-```yaml
-services:
-  web:
-    # 例如：在这里添加您自己需要的卷挂载
-    volumes:
-      - /opt/my-backup:/app/backup
-```
-Docker Compose 会自动合并这两个文件。由于该文件通常被包含在 `.gitignore` 中（本项目已包含），以后您执行 `git pull` 更新项目代码时，绝对不会产生文件冲突。
 
 ## License
 
