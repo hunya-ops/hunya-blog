@@ -64,4 +64,10 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
 
+    # 注册错误处理器
+    @app.errorhandler(404)
+    def page_not_found(e):
+        from flask import render_template
+        return render_template('404.html'), 404
+
     return app

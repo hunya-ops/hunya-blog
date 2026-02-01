@@ -60,6 +60,27 @@ class Post(db.Model):
         text = self.content
         # 移除 markdown 图片 ![alt](url)
         text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
+        # 移除 markdown 链接，保留链接文字 [text](url) -> text
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+        # 移除代码块 ```code```
+        text = re.sub(r'```[\s\S]*?```', '', text)
+        # 移除行内代码 `code`
+        text = re.sub(r'`([^`]+)`', r'\1', text)
+        # 移除粗体 **text** 或 __text__
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+        text = re.sub(r'__([^_]+)__', r'\1', text)
+        # 移除斜体 *text* 或 _text_
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)
+        text = re.sub(r'_([^_]+)_', r'\1', text)
+        # 移除标题 # ## ### 等
+        text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+        # 移除引用 >
+        text = re.sub(r'^>\s*', '', text, flags=re.MULTILINE)
+        # 移除分隔线 --- *** ___
+        text = re.sub(r'^[-*_]{3,}\s*$', '', text, flags=re.MULTILINE)
+        # 移除列表标记 - * + 或数字列表
+        text = re.sub(r'^[\s]*[-*+]\s+', '', text, flags=re.MULTILINE)
+        text = re.sub(r'^[\s]*\d+\.\s+', '', text, flags=re.MULTILINE)
         # 移除 HTML 标签
         text = re.sub(r'<[^>]+>', '', text)
         # 移除多余空白

@@ -90,6 +90,15 @@ def weibo():
 @login_required
 def new_post(post_type='uncut'):
     if request.method == 'POST':
+        # 解析发布时间
+        created_at_str = request.form.get('created_at')
+        created_at = None
+        if created_at_str:
+            try:
+                created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M')
+            except ValueError:
+                pass
+        
         post = Post(
             post_type=request.form.get('post_type', post_type),
             title=request.form.get('title') or None,
@@ -97,6 +106,8 @@ def new_post(post_type='uncut'):
             image_urls=request.form.get('image_urls') or None,
             is_published=request.form.get('action') == 'publish'
         )
+        if created_at:
+            post.created_at = created_at
         post.set_tags(request.form.get('tags', ''))
         
         db.session.add(post)
@@ -104,7 +115,7 @@ def new_post(post_type='uncut'):
         flash('发布成功', 'success')
         return redirect(url_for('admin.posts') if post.post_type == 'pulp' else url_for('admin.weibo'))
 
-    return render_template('admin/editor.html', post=None, post_type=post_type)
+    return render_template('admin/editor.html', post=None, post_type=post_type, now=datetime.now())
 
 
 @admin_bp.route('/edit/<int:post_id>', methods=['GET', 'POST'])
@@ -119,6 +130,14 @@ def edit_post(post_id):
         post.image_urls = request.form.get('image_urls') or None
         post.is_published = request.form.get('action') == 'publish'
         post.set_tags(request.form.get('tags', ''))
+        
+        # 解析并更新发布时间
+        created_at_str = request.form.get('created_at')
+        if created_at_str:
+            try:
+                post.created_at = datetime.strptime(created_at_str, '%Y-%m-%dT%H:%M')
+            except ValueError:
+                pass
 
         db.session.commit()
         flash('更新成功', 'success')

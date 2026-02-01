@@ -54,6 +54,12 @@
         </div>
 
         <div class="sidebar-box">
+            <h3>发布时间</h3>
+            <input type="datetime-local" name="created_at" class="form-input"
+                value="{{ post.created_at.strftime('%Y-%m-%dT%H:%M') if post else now.strftime('%Y-%m-%dT%H:%M') }}">
+        </div>
+
+        <div class="sidebar-box">
             <h3>标签</h3>
             <div class="tags-input-wrapper">
                 <div class="tags-list" id="tags-list"></div>

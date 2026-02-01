@@ -30,7 +30,11 @@
         </footer>
     </article>
     {% else %}
-    <p>暂无文章</p>
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p class="empty-title">暂无内容</p>
+        <p class="empty-hint">这里还没有任何文章，敬请期待</p>
+    </div>
     {% endfor %}
 </section>
 
