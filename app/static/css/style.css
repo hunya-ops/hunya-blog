@@ -1650,11 +1650,11 @@ footer a:hover {
     }
 
     .nav-links.active {
-        max-height: 800px;
-        min-height: 420px;
-        /* Ensure panel stays tall */
-        padding: 24px 24px 48px;
-        /* Balanced padding */
+        max-height: 90vh;
+        min-height: 320px;
+        /* Baseline height for 3 items + toggle */
+        padding: 24px 24px 40px;
+        /* Consistent padding */
         visibility: visible;
         opacity: 1;
         display: flex;
@@ -1710,9 +1710,10 @@ footer a:hover {
 
     /* Bottom Centered Theme Toggle */
     .theme-toggle {
-        margin: 0 auto;
+        margin: 24px auto 0;
+        /* Min 24px gap from links */
         margin-top: auto;
-        /* Push to the very bottom */
+        /* Still push if there is extra flex space */
         width: 52px;
         height: 52px;
         background: rgba(var(--text-rgb, 0, 0, 0), 0.05);
@@ -1790,6 +1791,7 @@ footer a:hover {
         display: none;
     }
 }
+
 /* ========== Lightbox ========== */
 .lightbox-overlay {
     position: fixed;
@@ -1950,6 +1952,7 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
+
     .lightbox-prev,
     .lightbox-next {
         width: 40px;
