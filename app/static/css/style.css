@@ -1419,25 +1419,132 @@ footer a:hover {
     font-variant-numeric: tabular-nums;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+
+    /* Global Adjustments */
+    html {
+        font-size: 15px;
+    }
+
     .container {
         padding: 0 16px;
     }
 
+    main.container {
+        padding-top: 20px;
+    }
+
+    /* Header */
+    .site-header {
+        height: 60px;
+    }
+
+    .mobile-toggle {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        max-width: 300px;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 80px 32px;
+        transition: right 0.3s ease;
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .site-header nav ul {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .site-header nav ul a {
+        font-size: 1.05rem;
+        padding: 12px 20px;
+        text-align: center;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    /* Post Cards */
     .post-card {
-        padding: 20px;
-        margin-left: -16px;
-        margin-right: -16px;
-        border-radius: 0;
-        /* Full bleed on mobile */
-        border-right: none;
-        border-left: none;
-        background: rgba(255, 255, 255, 0.8);
+        padding: 24px 20px;
+        margin-bottom: 24px;
+        border-radius: var(--radius-md);
+    }
+
+    .post-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+
+    .post-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* Post Detail */
+    .post-detail {
+        padding: 24px 20px;
+        border-radius: var(--radius-md);
     }
 
     .post-detail h1 {
-        font-size: 1.8rem;
+        font-size: 1.75rem;
+        margin-bottom: 0.6em;
+    }
+
+    .post-detail .post-content h2 {
+        font-size: 1.35rem;
+        margin-top: 1.5em;
+    }
+
+    .post-detail .post-content {
+        font-size: 1.05rem;
+    }
+
+    /* Archive */
+    .archive-layout {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .archive-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 20px;
+        z-index: 10;
+    }
+
+    .year-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .year-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .year-nav li a {
+        white-space: nowrap;
+        padding: 6px 12px;
+        font-size: 0.95rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
 }
 
