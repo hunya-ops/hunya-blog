@@ -3,7 +3,8 @@
 {% block content %}
 <section class="posts-timeline">
     {% for post in posts.items %}
-    <article class="post-card {{ post.post_type }}">
+    <article class="post-card {{ post.post_type }}" style="position: relative;">
+        <a href="{{ post.url }}" class="stretched-link" aria-label="查看详情"></a>
         {% if post.post_type == 'uncut' %}
         <div class="post-meta-header">
             <span class="post-date-badge">

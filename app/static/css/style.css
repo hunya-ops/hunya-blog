@@ -353,6 +353,8 @@ main.container {
 }
 
 .post-card {
+    position: relative;
+    /* Base for stretched link */
     background: var(--glass-bg);
     padding: 20px 24px;
     margin-bottom: 16px;
@@ -360,6 +362,17 @@ main.container {
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
     box-shadow: var(--glass-shadow);
+    cursor: pointer;
+}
+
+.stretched-link::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
 }
 
 .post-card:last-child {
@@ -387,7 +400,8 @@ main.container {
     transition: background-size 0.3s;
 }
 
-.post-card h2 a:hover {
+.post-card h2 a:hover,
+.post-card:hover h2 a {
     background-size: 100% 1px;
     opacity: 1;
 }
@@ -441,6 +455,9 @@ main.container {
 }
 
 .image-grid-display img {
+    position: relative;
+    z-index: 2;
+    /* Must be above stretched link */
     height: 100%;
     width: 100%;
     object-fit: cover;
