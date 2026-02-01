@@ -76,9 +76,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const navLinks = document.getElementById('navLinks');
 
     if (mobileToggle && navLinks) {
+        const header = document.querySelector('.site-header');
         mobileToggle.addEventListener('click', function () {
             mobileToggle.classList.toggle('active');
             navLinks.classList.toggle('active');
+            if (header) header.classList.toggle('nav-active');
         });
 
         // Close menu when clicking a link
@@ -86,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
             link.addEventListener('click', () => {
                 mobileToggle.classList.remove('active');
                 navLinks.classList.remove('active');
+                if (header) header.classList.remove('nav-active');
             });
         });
 
@@ -94,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!mobileToggle.contains(e.target) && !navLinks.contains(e.target)) {
                 mobileToggle.classList.remove('active');
                 navLinks.classList.remove('active');
+                if (header) header.classList.remove('nav-active');
             }
         });
     }
