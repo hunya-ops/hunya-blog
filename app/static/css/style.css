@@ -362,7 +362,6 @@ main.container {
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
     box-shadow: var(--glass-shadow);
-    cursor: pointer;
 }
 
 .stretched-link::after {
@@ -373,6 +372,8 @@ main.container {
     left: 0;
     z-index: 1;
     content: "";
+    cursor: pointer;
+    /* Pointer only on the link overlay */
 }
 
 .post-card:last-child {
@@ -2041,6 +2042,10 @@ footer a:hover {
     margin: 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: box-shadow 0.4s ease;
+    position: relative;
+    z-index: 2;
+    /* Ensure image wrapper stays above card link */
+    cursor: zoom-in;
     background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite linear;
@@ -2111,6 +2116,7 @@ footer a:hover {
         padding: 0;
     }
 }
+
 /* Ensure images in cards prioritize lightbox cursor over card link */
 .post-card .post-content img {
     position: relative;
