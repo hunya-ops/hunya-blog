@@ -1577,7 +1577,7 @@ footer a:hover {
     }
 
     .container {
-        padding: 0 16px;
+        padding: 0 24px;
     }
 
     main.container {
@@ -1752,9 +1752,9 @@ footer a:hover {
     }
 
     .post-detail {
-        margin-left: -16px;
-        margin-right: -16px;
-        width: calc(100% + 32px);
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
         max-width: none;
         border-radius: 0 !important;
         border-left: none;
@@ -1788,5 +1788,278 @@ footer a:hover {
 
     .year-nav::-webkit-scrollbar {
         display: none;
+    }
+}
+/* ========== Lightbox ========== */
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.lightbox-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-container {
+    position: relative;
+    width: 85vw;
+    height: 96vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.lightbox-image {
+    position: absolute;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    object-fit: contain;
+    cursor: zoom-out;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8) rotate(-1deg);
+    opacity: 0;
+    filter: blur(10px);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.5s ease,
+        filter 0.5s ease;
+}
+
+.lightbox-image.current {
+    z-index: 10;
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+}
+
+.lightbox-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    z-index: 20;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    box-shadow: none;
+    text-shadow: none;
+    outline: none;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    font-size: 40px;
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    line-height: 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    border: 1px solid transparent;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transform: translateY(-50%);
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.lightbox-next {
+    text-indent: 2px;
+}
+
+.lightbox-prev {
+    left: 40px;
+    z-index: 20;
+}
+
+.lightbox-next {
+    right: 40px;
+    z-index: 20;
+}
+
+.lightbox-counter {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    z-index: 20;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .lightbox-prev,
+    .lightbox-next {
+        width: 40px;
+        height: 40px;
+        font-size: 28px;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .lightbox-prev {
+        left: 10px;
+    }
+
+    .lightbox-next {
+        right: 10px;
+    }
+
+    .lightbox-close {
+        top: auto;
+        bottom: 30px;
+        right: 30px;
+        background: rgba(40, 40, 40, 0.7);
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 32px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .lightbox-counter {
+        bottom: 50px;
+        left: 40px;
+        right: auto;
+        text-align: left;
+    }
+}
+
+/* ========== Image Loading Animation ========== */
+.image-placeholder {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+    border-radius: var(--radius-md);
+    isolation: isolate;
+    transform: translateZ(0);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.4s ease;
+    background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+.image-placeholder:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.image-placeholder:hover img {
+    transform: scale(1.08);
+}
+
+.image-grid-display .image-placeholder {
+    height: 100%;
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+    border-radius: var(--radius-md);
+}
+
+.image-grid-display .image-placeholder img {
+    height: 100%;
+}
+
+.image-placeholder img {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+    object-fit: cover;
+    cursor: zoom-in;
+    border-radius: 0 !important;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.image-placeholder.loaded {
+    animation: none;
+    background: transparent;
+    min-height: auto;
+}
+
+.image-placeholder.loaded img {
+    opacity: 1;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
     }
 }

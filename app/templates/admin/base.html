@@ -29,6 +29,8 @@
                 </div>
                 <div class="nav-section">
                     <div class="nav-title">系统设置</div>
+                    <a href="{{ url_for('admin.settings_home') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.settings_home' else '' }}">首页配置</a>
                     <a href="{{ url_for('admin.settings_basic') }}"
                         class="nav-item {{ 'active' if request.endpoint == 'admin.settings_basic' else '' }}">基本信息</a>
                     <a href="{{ url_for('admin.settings_password') }}"

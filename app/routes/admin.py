@@ -302,6 +302,19 @@ def settings():
     return render_template('admin/settings/index.html')
 
 
+@admin_bp.route('/settings/home', methods=['GET', 'POST'])
+@login_required
+def settings_home():
+    if request.method == 'POST':
+        content = request.form.get('content', '')
+        Setting.set('home_content', content)
+        flash('首页内容已保存', 'success')
+        return redirect(url_for('admin.settings_home'))
+
+    content = Setting.get('home_content', '')
+    return render_template('admin/settings/home.html', content=content)
+
+
 @admin_bp.route('/settings/basic', methods=['GET', 'POST'])
 @login_required
 def settings_basic():

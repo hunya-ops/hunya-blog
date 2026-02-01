@@ -1,0 +1,80 @@
+{% extends "admin/base.html" %}
+
+{% block title %}首页配置 - {{ blog_title }}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+    <div class="header-left">
+        <h2>首页配置</h2>
+        <p class="header-subtitle">管理博客的首页展示内容</p>
+    </div>
+</div>
+
+<form method="POST" class="editor-layout">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="editor-main">
+        <div class="form-group">
+            <label class="form-label" for="content">首页内容 (Markdown)</label>
+            <textarea id="content" name="content" class="form-textarea">{{ content }}</textarea>
+        </div>
+    </div>
+
+    <div class="editor-sidebar">
+        <div class="sidebar-box">
+            <h3>保存设置</h3>
+            <p class="sidebar-info">内容将显示在博客根路径 (/) 页面。</p>
+            <div class="sidebar-actions">
+                <button type="submit" class="btn btn-primary btn-block">保存并发布</button>
+                <a href="{{ url_for('main.index') }}" target="_blank" class="btn btn-secondary btn-block">预览首页</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<script>
+    const easyMDE = new EasyMDE({
+        element: document.getElementById('content'),
+        spellChecker: false,
+        status: false,
+        minHeight: "500px",
+        placeholder: '在此输入首页的欢迎语、自我介绍或展示内容...',
+        toolbar: ['bold', 'italic', 'heading', '|',
+            'quote', 'unordered-list', 'ordered-list', '|',
+            'link', 'image', '|', 'preview', 'fullscreen'],
+        uploadImage: true,
+        imageUploadEndpoint: "/api/upload",
+        imageUploadFunction: function (file, onSuccess, onError) {
+            const formData = new FormData();
+            formData.append('image', file);
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+            fetch('/api/upload', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        onSuccess(data.url);
+                    } else {
+                        onError(data.error || '上传失败');
+                    }
+                })
+                .catch(err => {
+                    onError('上传失败: ' + err.message);
+                });
+        }
+    });
+</script>
+{% endblock %}

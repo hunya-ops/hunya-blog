@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - {{ blog_title }}{% endblock %}
+
+{% block content %}
+<div class="post-detail">
+    <div class="post-content">
+        {% if content %}
+        {{ content | markdown }}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🏠</div>
+            <h3>欢迎来到我的博客</h3>
+            <p>管理员还未配置首页内容，请前往后台进行设置。</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

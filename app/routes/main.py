@@ -16,7 +16,14 @@ def get_posts_per_page():
 
 @main_bp.route('/')
 def index():
-    """Homepage now shows Uncut (Dynamic) posts only"""
+    """Common homepage showing configured Home content"""
+    content = Setting.get('home_content', '')
+    return render_template('home.html', content=content, page_title='首页')
+
+
+@main_bp.route('/moments')
+def moments():
+    """Moments (Dynamic posts)"""
     page = request.args.get('page', 1, type=int)
     posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='动态')
@@ -32,8 +39,8 @@ def articles():
 
 @main_bp.route('/uncut')
 def feeds():
-    """Redirect old /uncut to homepage"""
-    return redirect(url_for('main.index'))
+    """Redirect old /uncut to /moments"""
+    return redirect(url_for('main.moments'))
 
 
 @main_bp.route('/pulp/<short_id>', endpoint='pulp_detail')
