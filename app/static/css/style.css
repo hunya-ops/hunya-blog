@@ -393,16 +393,10 @@ main.container {
 
 .post-card h2 a {
     color: var(--text);
-    background: linear-gradient(90deg, var(--text) 0%, var(--text) 100%);
-    background-size: 0% 1px;
-    background-repeat: no-repeat;
-    background-position: left bottom;
-    transition: background-size 0.3s;
+    /* No underline effect in list view */
 }
 
-.post-card h2 a:hover,
-.post-card:hover h2 a {
-    background-size: 100% 1px;
+.post-card h2 a:hover {
     opacity: 1;
 }
 
@@ -461,9 +455,10 @@ main.container {
     height: 100%;
     width: 100%;
     object-fit: cover;
+    cursor: zoom-in;
+    /* Explicitly set zoom-in */
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
         box-shadow 0.4s ease;
-    /* Remove shadow from img directly, placeholder handles it */
 }
 
 /* Grid Layouts (Unified sizes for <7, current for >=7) */
@@ -2115,4 +2110,10 @@ footer a:hover {
     .home-content-wrapper {
         padding: 0;
     }
+}
+/* Ensure images in cards prioritize lightbox cursor over card link */
+.post-card .post-content img {
+    position: relative;
+    z-index: 2;
+    cursor: zoom-in !important;
 }
