@@ -97,6 +97,16 @@
 </div>
 
 <script>
+    // Hide loader when page is shown from bfcache (back button fix)
+    window.addEventListener('pageshow', function (event) {
+        const loader = document.getElementById('archiveLoader');
+        const spinner = document.getElementById('archiveSpinner');
+        const mainContent = document.querySelector('.archive-main');
+        if (loader) loader.classList.remove('visible');
+        if (spinner) spinner.classList.remove('visible');
+        if (mainContent) mainContent.classList.remove('loading');
+    });
+
     function handleYearSwitch(e, link) {
         e.preventDefault(); // Stop immediate navigation
 
@@ -115,10 +125,8 @@
         document.querySelectorAll('.year-nav a').forEach(a => a.classList.remove('active'));
         link.classList.add('active');
 
-        // Minimum animation time: 600ms, then navigate
-        setTimeout(() => {
-            window.location.href = targetUrl;
-        }, 600);
+        // Navigate immediately
+        window.location.href = targetUrl;
     }
 
     function scrollToMonth(year, month) {

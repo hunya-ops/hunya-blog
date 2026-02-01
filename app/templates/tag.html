@@ -10,27 +10,17 @@
             <h1 class="tag-title">#{{ tag.name }}</h1>
             <span class="tag-total">共 {{ total_count }} 篇</span>
         </div>
-
-        <!-- Filter Buttons -->
-        <div class="tag-filter">
-            <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="pulp">文章</button>
-            <button class="filter-btn" data-filter="uncut">动态</button>
-        </div>
     </header>
 
-    <!-- Archive-style list -->
+    <!-- Archive-style list (Articles Only) -->
     <div class="tag-content">
         {% for month_data in months %}
         <section class="archive-month">
             <h2>{{ month_data.year }}年{{ month_data.month }}月</h2>
             <ul class="archive-list">
                 {% for post in month_data.posts %}
-                <li data-type="{{ post.post_type }}">
+                <li>
                     <time>{{ post.created_at.strftime('%m-%d') }}</time>
-                    <span class="post-type-tag {{ 'uncut' if post.post_type == 'uncut' else '' }}">
-                        {{ '文章' if post.post_type == 'pulp' else '动态' }}
-                    </span>
                     {% if post.title %}
                     <a href="{{ post.url }}">{{ post.title }}</a>
                     {% else %}
@@ -45,37 +35,4 @@
         {% endfor %}
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const listItems = document.querySelectorAll('.archive-list li');
-        const sections = document.querySelectorAll('.archive-month');
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function () {
-                // Update active state
-                filterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                const filter = this.dataset.filter;
-
-                // Filter items
-                listItems.forEach(item => {
-                    if (filter === 'all' || item.dataset.type === filter) {
-                        item.style.display = '';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-
-                // Hide empty sections
-                sections.forEach(section => {
-                    const visibleItems = section.querySelectorAll('li:not([style*="display: none"])');
-                    section.style.display = visibleItems.length ? '' : 'none';
-                });
-            });
-        });
-    });
-</script>
 {% endblock %}

@@ -125,7 +125,8 @@ class Tag(db.Model):
 
     @property
     def post_count(self):
-        return self.posts.filter_by(is_published=True).count()
+        # Only count articles (pulp), not dynamic posts (uncut)
+        return self.posts.filter_by(is_published=True, post_type='pulp').count()
 
 
 class Image(db.Model):

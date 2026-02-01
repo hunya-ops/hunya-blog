@@ -309,13 +309,26 @@ def settings_basic():
         Setting.set('blog_title', request.form.get('blog_title', ''))
         Setting.set('blog_description', request.form.get('blog_description', ''))
         Setting.set('api_key', request.form.get('api_key', ''))
+        # Posts per page setting
+        posts_per_page = request.form.get('posts_per_page', '20')
+        try:
+            posts_per_page = max(5, min(100, int(posts_per_page)))
+        except ValueError:
+            posts_per_page = 20
+        Setting.set('posts_per_page', str(posts_per_page))
+        # Navigation visibility settings
+        Setting.set('show_archive', '1' if request.form.get('show_archive') else '0')
+        Setting.set('show_tags', '1' if request.form.get('show_tags') else '0')
         flash('设置已保存', 'success')
         return redirect(url_for('admin.settings_basic'))
 
     return render_template('admin/settings/basic.html',
         blog_title=Setting.get('blog_title', current_app.config['BLOG_TITLE']),
         blog_description=Setting.get('blog_description', current_app.config['BLOG_DESCRIPTION']),
-        api_key=Setting.get('api_key', current_app.config.get('API_KEY', ''))
+        api_key=Setting.get('api_key', current_app.config.get('API_KEY', '')),
+        posts_per_page=int(Setting.get('posts_per_page', str(current_app.config.get('POSTS_PER_PAGE', 20)))),
+        show_archive=Setting.get('show_archive', '1') == '1',
+        show_tags=Setting.get('show_tags', '1') == '1'
     )
 
 

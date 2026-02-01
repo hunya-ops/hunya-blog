@@ -36,6 +36,29 @@
     /* Shadows */
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    /* Body Background Variable */
+    --bg-body: #f5f5f7;
+}
+
+[data-theme="dark"] {
+    --primary: #64748B;
+    --primary-hover: #94A3B8;
+    --primary-light: rgba(100, 116, 139, 0.15);
+    --text: #f5f5f7;
+    --text-secondary: #86868b;
+    --text-tertiary: #6e6e73;
+    --border: rgba(255, 255, 255, 0.1);
+    --border-light: rgba(255, 255, 255, 0.05);
+
+    --glass-bg: rgba(28, 28, 30, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    --bg-body: #000000;
 }
 
 html {
@@ -43,16 +66,18 @@ html {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     letter-spacing: -0.01em;
+    scrollbar-gutter: stable;
+    /* Prevent layout shift when scrollbar appears */
 }
 
 body {
     color: var(--text);
-    background: #f5f5f7;
+    background: var(--bg-body);
     background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding-top: var(--header-height);
+    padding-top: calc(var(--header-height) + 24px);
 }
 
 a {
@@ -92,14 +117,32 @@ img {
 .site-header {
     position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    width: 100%;
+    max-width: var(--container-width);
     height: var(--header-height);
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--glass-bg);
     backdrop-filter: blur(var(--blur-amount));
     -webkit-backdrop-filter: blur(var(--blur-amount));
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: 0 0 16px 16px;
+    box-shadow: var(--glass-shadow);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    /* Ensure border covers sides too if it's acting as a tab */
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+}
+
+.site-header.hidden {
+    transform: translateX(-50%) translateY(-100%);
+    box-shadow: none;
+}
+
+.nav-links {
     display: flex;
     align-items: center;
 }
@@ -146,30 +189,102 @@ img {
     box-shadow: 0 2px 12px rgba(0, 122, 255, 0.35);
 }
 
+[data-theme="dark"] .site-header nav ul a.active {
+    box-shadow: none;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 8px;
+    box-shadow: none;
+    /* Override global button shadow */
+}
+
+.theme-toggle:hover {
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.05);
+    box-shadow: none;
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle .sun-icon {
+    display: none;
+}
+
+.theme-toggle .moon-icon {
+    display: block;
+}
+
+[data-theme="dark"] .theme-toggle .sun-icon {
+    display: block;
+}
+
+[data-theme="dark"] .theme-toggle .moon-icon {
+    display: none;
+}
+
+/* Mobile Toggle */
 /* Mobile Toggle */
 .mobile-toggle {
     display: none;
     flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 21px;
-    background: transparent;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.05);
+    /* Subtle button background */
     border: none;
     cursor: pointer;
     padding: 0;
     z-index: 1001;
+    border-radius: 50%;
+    gap: 5px;
+    /* Use gap for spacing instead of space-between */
+    transition: background 0.2s;
+    box-shadow: none;
+    /* Override global button shadow */
+}
+
+[data-theme="dark"] .mobile-toggle {
+    background: transparent;
+    box-shadow: none;
+}
+
+.mobile-toggle:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .mobile-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .mobile-toggle .bar {
-    width: 100%;
-    height: 3px;
+    width: 18px;
+    /* Balanced icon size inside circle */
+    height: 2px;
     background-color: var(--text);
     border-radius: 10px;
     transition: all 0.3s ease;
 }
 
+/* X State Transformations */
+/* Gap is 5px. Distance from center bar to top/bottom bar center is 2/2 + 5 + 2/2 = 7px */
 .mobile-toggle.active .bar:nth-child(1) {
-    transform: translateY(9px) rotate(45deg);
+    transform: translateY(7px) rotate(45deg);
 }
 
 .mobile-toggle.active .bar:nth-child(2) {
@@ -177,7 +292,7 @@ img {
 }
 
 .mobile-toggle.active .bar:nth-child(3) {
-    transform: translateY(-9px) rotate(-45deg);
+    transform: translateY(-7px) rotate(-45deg);
 }
 
 /* ========== Main Content ========== */
@@ -275,7 +390,7 @@ main.container {
 .post-content {
     font-size: 1.05rem;
     line-height: 1.6;
-    color: #333;
+    color: var(--text);
 }
 
 /* Uncut Post Variant Stacked */
@@ -455,6 +570,12 @@ main.container {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+[data-theme="dark"] .post-detail .post-content blockquote {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: var(--border);
+    color: var(--text-secondary);
 }
 
 .post-detail .post-content blockquote p:last-child {
@@ -677,7 +798,11 @@ main.container {
     justify-content: space-between;
     margin-bottom: 40px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .tag-header {
+    border-bottom-color: var(--border);
 }
 
 .tag-header-left {
@@ -724,6 +849,10 @@ main.container {
     color: #fff;
     background: var(--primary);
     box-shadow: 0 2px 12px rgba(0, 122, 255, 0.35);
+}
+
+[data-theme="dark"] .filter-btn.active {
+    box-shadow: none;
 }
 
 .tag-content {
@@ -892,6 +1021,10 @@ button:hover,
     color: #fff;
     background: var(--primary);
     box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+[data-theme="dark"] .year-nav li a.active {
+    box-shadow: none;
 }
 
 .year-section {
@@ -1115,6 +1248,10 @@ button:hover,
     top: 80px;
 }
 
+[data-theme="dark"] .archive-month h2 {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 /* Chart */
 .year-chart {
     height: 160px;
@@ -1132,6 +1269,11 @@ button:hover,
     box-sizing: border-box;
     position: relative;
     overflow: visible;
+}
+
+[data-theme="dark"] .year-chart {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border);
 }
 
 .chart-column {
@@ -1159,6 +1301,10 @@ button:hover,
     background: rgba(0, 0, 0, 0.03);
     overflow: hidden;
     position: relative;
+}
+
+[data-theme="dark"] .chart-bar-track {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .chart-bar-segment {
@@ -1275,10 +1421,48 @@ footer {
     padding: 30px 0;
     font-size: 1.05rem;
     color: var(--text-secondary);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    background: rgba(255, 255, 255, 0.3);
+    border-top: 1px solid var(--glass-border);
+    background: var(--glass-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+}
+
+/* Post Navigation (Back Button) */
+.post-nav {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.post-nav a {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 99px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.post-nav a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+[data-theme="dark"] .post-nav a {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+[data-theme="dark"] .post-nav a:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
 }
 
 footer .container {
@@ -1354,6 +1538,25 @@ footer a:hover {
     font-variant-numeric: tabular-nums;
 }
 
+/* Dark mode pagination */
+[data-theme="dark"] .pagination {
+    background: rgba(30, 30, 35, 0.8);
+    border-color: var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .pagination a {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+}
+
+[data-theme="dark"] .pagination a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 @media (max-width: 768px) {
 
     /* Global Adjustments */
@@ -1394,6 +1597,11 @@ footer a:hover {
         box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
     }
 
+    [data-theme="dark"] .nav-links {
+        background: rgba(20, 20, 20, 0.98);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+    }
+
     .nav-links.active {
         right: 0;
     }
@@ -1409,6 +1617,21 @@ footer a:hover {
         text-align: center;
         width: 100%;
         background: rgba(0, 0, 0, 0.03);
+    }
+
+    /* Move theme toggle to bottom on mobile */
+    .theme-toggle {
+        margin-top: auto;
+        margin-left: 0;
+        width: 44px;
+        height: 44px;
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+        background: transparent;
+        border-color: transparent;
     }
 
     /* Post Cards - keep flat list style on mobile */
@@ -1460,6 +1683,10 @@ footer a:hover {
         box-shadow: none;
         padding: 32px 20px;
         background: rgba(255, 255, 255, 0.9);
+    }
+
+    [data-theme="dark"] .post-detail {
+        background: transparent;
     }
 
     .post-detail h1 {

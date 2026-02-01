@@ -58,7 +58,9 @@ def create_app(config_class=Config):
         from app.models import Setting
         return {
             'blog_title': Setting.get('blog_title', app.config['BLOG_TITLE']),
-            'blog_description': Setting.get('blog_description', app.config['BLOG_DESCRIPTION'])
+            'blog_description': Setting.get('blog_description', app.config['BLOG_DESCRIPTION']),
+            'show_archive': Setting.get('show_archive', '1') == '1',
+            'show_tags': Setting.get('show_tags', '1') == '1'
         }
 
     with app.app_context():

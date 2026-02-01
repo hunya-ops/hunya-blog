@@ -33,6 +33,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function hideGlobalLoading() {
+        if (globalLoader && globalSpinner) {
+            globalLoader.classList.remove('visible');
+            globalSpinner.classList.remove('visible');
+        }
+    }
+
+    // Hide loader when page is shown (fixes back button issue with bfcache)
+    window.addEventListener('pageshow', function (event) {
+        hideGlobalLoading();
+    });
+
     function navigateWithDelay(url) {
         showGlobalLoading();
         window.location.href = url;
@@ -83,6 +95,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 mobileToggle.classList.remove('active');
                 navLinks.classList.remove('active');
             }
+        });
+    }
+
+    // Scroll-aware navbar interaction
+    let lastScrollTop = 0;
+    const header = document.querySelector('.site-header');
+    // const headerHeight = header ? header.offsetHeight : 0; 
+    // Better to use a fixed threshold or dynamic check to avoid issues if header hides
+
+    window.addEventListener('scroll', function () {
+        if (!header) return;
+
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const threshold = 60; // Minimum scroll before hiding
+
+        if (scrollTop > lastScrollTop && scrollTop > threshold) {
+            // Scroll Down
+            header.classList.add('hidden');
+        } else {
+            // Scroll Up
+            header.classList.remove('hidden');
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+    }, { passive: true });
+
+    // Theme Toggle Interaction
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         });
     }
 });

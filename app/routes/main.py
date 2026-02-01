@@ -1,16 +1,24 @@
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, render_template, request, current_app, redirect, url_for
 from app import db
-from app.models import Post, Tag
+from app.models import Post, Tag, Setting
 from sqlalchemy import extract
 
 main_bp = Blueprint('main', __name__)
+
+
+def get_posts_per_page():
+    """Get posts per page from settings, with fallback to config"""
+    try:
+        return int(Setting.get('posts_per_page', str(current_app.config.get('POSTS_PER_PAGE', 20))))
+    except ValueError:
+        return 20
 
 
 @main_bp.route('/')
 def index():
     """Homepage now shows Uncut (Dynamic) posts only"""
     page = request.args.get('page', 1, type=int)
-    posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
+    posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='动态')
 
 
@@ -18,7 +26,7 @@ def index():
 def articles():
     """Pulp articles only"""
     page = request.args.get('page', 1, type=int)
-    posts = Post.get_published_posts(post_type='pulp').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
+    posts = Post.get_published_posts(post_type='pulp').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='文章')
 
 
@@ -47,7 +55,8 @@ def tag_posts(tag_name):
         return untagged_posts()
     
     tag = Tag.query.filter_by(name=tag_name).first_or_404()
-    posts = tag.posts.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
+    # Only show articles (pulp), not dynamic posts (uncut)
+    posts = tag.posts.filter_by(is_published=True, post_type='pulp').order_by(Post.created_at.desc()).all()
     
     # Group posts by month
     months_data = {}
@@ -68,9 +77,9 @@ def tag_posts(tag_name):
 
 
 def untagged_posts():
-    """Posts without any tags"""
-    # Get all published posts that have no tags
-    posts = Post.query.filter_by(is_published=True).filter(~Post.tags.any()).order_by(Post.created_at.desc()).all()
+    """Posts without any tags (Articles only)"""
+    # Get all published articles that have no tags
+    posts = Post.query.filter_by(is_published=True, post_type='pulp').filter(~Post.tags.any()).order_by(Post.created_at.desc()).all()
     
     # Group by month
     months_data = {}
@@ -95,6 +104,10 @@ def untagged_posts():
 
 @main_bp.route('/archive')
 def archive():
+    # Check if archive page is enabled
+    if Setting.get('show_archive', '1') != '1':
+        return redirect(url_for('main.index'))
+    
     # 1. Get all distinct years from DB for the sidebar (Articles/Pulp only)
     years_query = db.session.query(extract('year', Post.created_at)).filter_by(is_published=True, post_type='pulp').distinct().all()
     all_years = sorted([int(y[0]) for y in years_query], reverse=True)
@@ -145,22 +158,26 @@ def archive():
 
 @main_bp.route('/tags')
 def all_tags():
-    # Get total published posts count
-    total_posts = Post.query.filter_by(is_published=True).count()
+    # Check if tags page is enabled
+    if Setting.get('show_tags', '1') != '1':
+        return redirect(url_for('main.index'))
+    
+    # Get total published articles count (only pulp, not uncut)
+    total_posts = Post.query.filter_by(is_published=True, post_type='pulp').count()
     
     if total_posts == 0:
         return render_template('tags.html', tag_data=[], total_posts=0, untagged_count=0)
     
-    # Get all tags with their post counts
+    # Get all tags with their article counts
     tags = Tag.query.all()
     tag_data = []
     tagged_post_ids = set()
     
     for tag in tags:
-        count = tag.post_count
+        count = tag.post_count  # This now only counts articles
         if count > 0:
-            # Collect post IDs that have this tag
-            for post in tag.posts.filter_by(is_published=True).all():
+            # Collect article IDs that have this tag
+            for post in tag.posts.filter_by(is_published=True, post_type='pulp').all():
                 tagged_post_ids.add(post.id)
             
             percentage = (count / total_posts) * 100

@@ -164,9 +164,7 @@
                 var spinner = document.getElementById('globalSpinner');
                 if (loader) loader.classList.add('visible');
                 if (spinner) spinner.classList.add('visible');
-                setTimeout(function () {
-                    window.location.href = '/tag/' + encodeURIComponent(rect.item.name);
-                }, 400);
+                window.location.href = '/tag/' + encodeURIComponent(rect.item.name);
             };
 
             container.appendChild(div);
