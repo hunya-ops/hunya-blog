@@ -354,11 +354,11 @@ main.container {
 
 .post-card {
     background: var(--glass-bg);
-    padding: 32px;
-    margin-bottom: 24px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
     box-shadow: var(--glass-shadow);
 }
 
@@ -369,7 +369,6 @@ main.container {
 .post-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--glass-shadow-hover);
-    border-color: var(--primary);
 }
 
 .post-card h2 {
@@ -1758,8 +1757,8 @@ footer a:hover {
 
     /* Restore Rest of Mobile Styles */
     .post-card {
-        padding: 24px;
-        margin-bottom: 20px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
         border-radius: var(--radius-md);
     }
 
