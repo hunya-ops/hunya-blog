@@ -35,9 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function navigateWithDelay(url) {
         showGlobalLoading();
-        setTimeout(() => {
-            window.location.href = url;
-        }, 500);
+        window.location.href = url;
     }
 
     // Add loading animation to nav links (except current active)
