@@ -1593,17 +1593,21 @@ footer a:hover {
         border: 1px solid var(--border) !important;
     }
 
+    .site-header nav {
+        padding: 0 10px;
+        /* Shift title left and button right within the pill */
+    }
+
     /* Fusion Effect: Square bottom corners of header and fuse with panel */
-    .site-header:has(.nav-links.active) {
+    .site-header.nav-active {
         border-bottom-left-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
         border-bottom: none !important;
         background: rgba(255, 255, 255, 0.98);
-        /* Increased opacity */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
-    [data-theme="dark"] .site-header:has(.nav-links.active) {
+    [data-theme="dark"] .site-header.nav-active {
         background: rgba(28, 28, 30, 0.98);
         border-bottom: none !important;
     }
@@ -1651,10 +1655,10 @@ footer a:hover {
 
     .nav-links.active {
         max-height: 90vh;
-        min-height: 320px;
-        /* Baseline height for 3 items + toggle */
-        padding: 24px 24px 40px;
-        /* Consistent padding */
+        min-height: auto;
+        /* Allow dynamic growth */
+        padding: 24px 24px 48px;
+        /* Balanced bottom padding */
         visibility: visible;
         opacity: 1;
         display: flex;
@@ -1710,10 +1714,10 @@ footer a:hover {
 
     /* Bottom Centered Theme Toggle */
     .theme-toggle {
-        margin: 24px auto 0;
-        /* Min 24px gap from links */
-        margin-top: auto;
-        /* Still push if there is extra flex space */
+        margin: 32px auto 0;
+        /* Fixed spacing from links */
+        margin-top: 32px;
+        /* Force minimum gap */
         width: 52px;
         height: 52px;
         background: rgba(var(--text-rgb, 0, 0, 0), 0.05);
