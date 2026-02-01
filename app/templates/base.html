@@ -44,8 +44,8 @@
                         <li><a href="{{ url_for('main.uncut') }}"
                                 class="{{ 'active' if request.endpoint == 'main.uncut' else '' }}">动态</a>
                         </li>
-                        <li><a href="{{ url_for('main.articles') }}"
-                                class="{{ 'active' if request.endpoint == 'main.articles' else '' }}">文章</a></li>
+                        <li><a href="{{ url_for('main.pulp') }}"
+                                class="{{ 'active' if request.endpoint == 'main.pulp' else '' }}">文章</a></li>
                         {% if show_archive %}
                         <li><a href="{{ url_for('main.archive') }}"
                                 class="{{ 'active' if request.endpoint == 'main.archive' else '' }}">归档</a></li>

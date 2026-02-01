@@ -30,7 +30,7 @@ def uncut():
 
 
 @main_bp.route('/pulp')
-def articles():
+def pulp():
     """Pulp articles only"""
     page = request.args.get('page', 1, type=int)
     posts = Post.get_published_posts(post_type='pulp').paginate(page=page, per_page=get_posts_per_page())
