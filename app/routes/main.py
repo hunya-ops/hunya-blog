@@ -8,9 +8,10 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
+    """Homepage now shows Uncut (Dynamic) posts only"""
     page = request.args.get('page', 1, type=int)
-    posts = Post.get_published_posts().paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
-    return render_template('index.html', posts=posts)
+    posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
+    return render_template('index.html', posts=posts, page_title='动态')
 
 
 @main_bp.route('/pulp')
@@ -23,10 +24,8 @@ def articles():
 
 @main_bp.route('/uncut')
 def feeds():
-    """Uncut feeds only"""
-    page = request.args.get('page', 1, type=int)
-    posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=current_app.config['POSTS_PER_PAGE'])
-    return render_template('index.html', posts=posts, page_title='动态')
+    """Redirect old /uncut to homepage"""
+    return redirect(url_for('main.index'))
 
 
 @main_bp.route('/pulp/<short_id>', endpoint='pulp_detail')
@@ -96,8 +95,8 @@ def untagged_posts():
 
 @main_bp.route('/archive')
 def archive():
-    # 1. Get all distinct years from DB for the sidebar
-    years_query = db.session.query(extract('year', Post.created_at)).filter_by(is_published=True).distinct().all()
+    # 1. Get all distinct years from DB for the sidebar (Articles/Pulp only)
+    years_query = db.session.query(extract('year', Post.created_at)).filter_by(is_published=True, post_type='pulp').distinct().all()
     all_years = sorted([int(y[0]) for y in years_query], reverse=True)
     
     # 2. Determine which year to show
@@ -108,10 +107,11 @@ def archive():
     if not current_year:
         return render_template('archive.html', years_data={}, sorted_years=[], current_year=None)
 
-    # 3. Fetch posts ONLY for the current_year
+    # 3. Fetch posts ONLY for the current_year (Articles/Pulp only)
     posts = Post.query.filter(
         extract('year', Post.created_at) == current_year, 
-        Post.is_published == True
+        Post.is_published == True,
+        Post.post_type == 'pulp'
     ).order_by(Post.created_at.desc()).all()
 
     # 4. Process data
@@ -132,9 +132,8 @@ def archive():
     stats = []
     for m in range(1, 13):
         month_posts = years_data[current_year]['months'][m]
-        uncut_count = sum(1 for p in month_posts if p.post_type == 'uncut')
-        pulp_count = sum(1 for p in month_posts if p.post_type == 'pulp')
-        stats.append({'short': uncut_count, 'long': pulp_count, 'total': uncut_count + pulp_count})
+        pulp_count = len(month_posts) # Only pulp posts are fetched
+        stats.append({'short': 0, 'long': pulp_count, 'total': pulp_count})
     years_data[current_year]['stats'] = stats
     
     return render_template('archive.html', 

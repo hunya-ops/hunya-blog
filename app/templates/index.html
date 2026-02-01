@@ -4,13 +4,13 @@
 <section class="posts-timeline">
     {% for post in posts.items %}
     <article class="post-card {{ post.post_type }}">
-        {% if post.post_type == 'pulp' and post.title %}
-        <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-        {% endif %}
+        {% if post.post_type == 'uncut' %}
+        <div class="post-meta-header">
+            <span class="post-date-badge">
+                {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </span>
+        </div>
         <div class="post-content">
-            {% if post.post_type == 'pulp' %}
-            {{ post.get_excerpt() }}
-            {% else %}
             <p>{{ post.content }}</p>
             {% set images = post.get_image_list() %}
             {% if images %}
@@ -20,14 +20,20 @@
                 {% endfor %}
             </div>
             {% endif %}
-            {% endif %}
         </div>
-        <footer class="post-footer">
-            <time datetime="{{ post.created_at.isoformat() }}">
-                {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
-            </time>
-
-        </footer>
+        {% else %}
+        {% if post.title %}
+        <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+        {% endif %}
+        <div class="post-meta-header">
+            <span class="post-date-badge">
+                {{ post.created_at.strftime('%Y-%m-%d') }}
+            </span>
+        </div>
+        <div class="post-content">
+            {{ post.get_excerpt() }}
+        </div>
+        {% endif %}
     </article>
     {% else %}
     <div class="empty-state">
