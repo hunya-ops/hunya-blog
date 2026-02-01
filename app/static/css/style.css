@@ -663,6 +663,13 @@ main.container {
     width: 100%;
     max-width: 100%;
     height: auto;
+    /* Default for article images */
+}
+
+/* Force grid images back to 100% height even in details */
+.post-detail .post-content .image-grid-display img {
+    height: 100% !important;
+    object-fit: cover;
 }
 
 .post-nav {
@@ -2117,8 +2124,9 @@ footer a:hover {
     }
 }
 
-/* Ensure images in cards prioritize lightbox cursor over card link */
-.post-card .post-content img {
+/* Ensure images in cards and details prioritize lightbox cursor */
+.post-card .post-content img,
+.post-detail .post-content img {
     position: relative;
     z-index: 2;
     cursor: zoom-in !important;
