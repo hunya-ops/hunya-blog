@@ -41,8 +41,8 @@
                         <li><a href="{{ url_for('main.index') }}"
                                 class="{{ 'active' if request.endpoint == 'main.index' else '' }}">首页</a>
                         </li>
-                        <li><a href="{{ url_for('main.moments') }}"
-                                class="{{ 'active' if request.endpoint in ['main.moments', 'main.feeds'] else '' }}">动态</a>
+                        <li><a href="{{ url_for('main.uncut') }}"
+                                class="{{ 'active' if request.endpoint == 'main.uncut' else '' }}">动态</a>
                         </li>
                         <li><a href="{{ url_for('main.articles') }}"
                                 class="{{ 'active' if request.endpoint == 'main.articles' else '' }}">文章</a></li>

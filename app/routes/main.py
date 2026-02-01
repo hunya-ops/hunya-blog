@@ -21,9 +21,9 @@ def index():
     return render_template('home.html', content=content, page_title='首页')
 
 
-@main_bp.route('/moments')
-def moments():
-    """Moments (Dynamic posts)"""
+@main_bp.route('/uncut')
+def uncut():
+    """Uncut (Dynamic posts)"""
     page = request.args.get('page', 1, type=int)
     posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='动态')
@@ -35,12 +35,6 @@ def articles():
     page = request.args.get('page', 1, type=int)
     posts = Post.get_published_posts(post_type='pulp').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='文章')
-
-
-@main_bp.route('/uncut')
-def feeds():
-    """Redirect old /uncut to /moments"""
-    return redirect(url_for('main.moments'))
 
 
 @main_bp.route('/pulp/<short_id>', endpoint='pulp_detail')
