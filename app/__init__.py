@@ -79,7 +79,7 @@ def create_app(config_class=Config):
             # 如果进入了视图函数，g._cache_miss 会被设为 True (MISS)
             # 如果没进入（命中缓存），则保持默认 False，即为 HIT
             is_miss = getattr(g, '_cache_miss', False)
-            response.headers['X-Hunya-Cache'] = 'MISS' if is_miss else 'HIT'
+            response.headers['Flask-Caching'] = 'MISS' if is_miss else 'HIT'
         return response
 
     # 注册错误处理器
