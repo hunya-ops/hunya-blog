@@ -9,6 +9,20 @@
 {% endif %}
 {% endblock %}
 
+{% block mobile_header_actions %}
+<div class="header-editor-actions">
+    <button type="submit" name="action" value="save" form="post-form" class="btn-header-draft">保存</button>
+    {% if post and post.is_published %}
+    <button type="submit" name="action" value="unpublish" form="post-form" class="btn-header-publish"
+        style="background: rgba(0,0,0,0.05); color: var(--apple-text);">下线</button>
+    {% else %}
+    <button type="submit" name="action" value="publish" form="post-form" class="btn-header-publish">发布</button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block mobile_title %}{{ '编辑' if post else '新建' }}{{ '文章' if post_type == 'pulp' else '动态' }}{% endblock %}
+
 {% block admin_content %}
 <form method="POST" id="post-form" class="editor-layout">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -23,6 +37,7 @@
         <div class="form-group">
             <textarea id="content" name="content" class="form-textarea">{{ post.content if post else '' }}</textarea>
         </div>
+        <input type="file" id="editor-image-input" accept="image/*" multiple style="display:none">
         {% else %}
         <div class="form-group">
             <textarea id="content" name="content" class="form-textarea short-content"
@@ -46,10 +61,27 @@
 
     <div class="editor-sidebar">
         <div class="sidebar-box">
-            <h3>发布设置</h3>
+            <div class="status-info" style="margin-bottom: 12px; font-size: 13px; color: var(--apple-secondary);">
+                状态:
+                {% if post %}
+                {% if post.is_published %}
+                <span style="color: #34c759; font-weight: 600;">已发布</span>
+                {% else %}
+                <span style="font-weight: 600;">草稿</span>
+                {% endif %}
+                {% else %}
+                <span style="font-weight: 600;">新内容</span>
+                {% endif %}
+            </div>
             <div class="sidebar-actions">
-                <button type="submit" name="action" value="publish" class="btn btn-primary btn-block">保存并发布</button>
-                <button type="submit" name="action" value="draft" class="btn btn-secondary btn-block">保存草稿</button>
+                <button type="submit" name="action" value="save" class="btn btn-primary btn-block">
+                    {{ '更新内容' if (post and post.is_published) else '保存草稿' }}
+                </button>
+                {% if post and post.is_published %}
+                <button type="submit" name="action" value="unpublish" class="btn btn-secondary btn-block">取消发布</button>
+                {% else %}
+                <button type="submit" name="action" value="publish" class="btn btn-secondary btn-block">发布</button>
+                {% endif %}
             </div>
         </div>
 
@@ -76,42 +108,102 @@
 {% if post_type == 'pulp' %}
 <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 <script>
+    const editorImageInput = document.getElementById('editor-image-input');
+
     const easyMDE = new EasyMDE({
         element: document.getElementById('content'),
         spellChecker: false,
         status: false,
         minHeight: "500px",
         placeholder: '使用 Markdown 格式书写...',
-        toolbar: ['bold', 'italic', 'heading', '|',
+        toolbar: [
+            'bold', 'italic', 'heading', '|',
             'quote', 'unordered-list', 'ordered-list', '|',
-            'link', 'image', '|', 'preview', 'fullscreen'],
-        // 启用图片上传和粘贴
+            'link',
+            {
+                name: "image",
+                action: function (editor) {
+                    editorImageInput.click();
+                },
+                className: "fa fa-picture-o",
+                title: "上传图片",
+            },
+            '|', 'preview', 'fullscreen'
+        ],
         uploadImage: true,
-        imageUploadEndpoint: "/api/upload",
+        imageMaxSize: 1024 * 1024 * 10,
+        imageAccept: "image/*",
         imageUploadFunction: function (file, onSuccess, onError) {
+            uploadAndInsert(file, onSuccess, onError);
+        }
+    });
+
+    // 核心上传处理函数 (支持多图)
+    async function uploadAndInsert(files, onSuccess = null, onError = null) {
+        if (!files || files.length === 0) return;
+
+        // 如果是单文件且不是数组，统一转为数组
+        const fileList = (files instanceof FileList || Array.isArray(files)) ? Array.from(files) : [files];
+
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+        const cm = easyMDE.codemirror;
+
+        // 显示加载遮罩
+        window.toggleLoading(true, `正在上传 ${fileList.length} 张图片...`);
+
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const file of fileList) {
             const formData = new FormData();
             formData.append('image', file);
 
-            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            try {
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: formData
+                });
+                const data = await res.json();
 
-            fetch('/api/upload', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                },
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
+                if (data.success) {
+                    if (onSuccess) {
                         onSuccess(data.url);
                     } else {
-                        onError(data.error || '上传失败');
+                        // 手动插入 Markdown
+                        const text = `![image](${data.url})\n`;
+                        cm.replaceSelection(text);
                     }
-                })
-                .catch(err => {
-                    onError('上传失败: ' + err.message);
-                });
+                    successCount++;
+                } else {
+                    failCount++;
+                    console.error('Upload failed:', data.error);
+                }
+            } catch (err) {
+                failCount++;
+                console.error('Upload error:', err);
+            }
+        }
+
+        // 关闭加载遮罩
+        window.toggleLoading(false);
+
+        if (successCount > 0 && failCount === 0) {
+            window.showToast(`成功上传 ${successCount} 张图片`, 'success');
+        } else if (successCount > 0 && failCount > 0) {
+            window.showToast(`上传完成: ${successCount} 成功, ${failCount} 失败`, 'warning');
+        } else if (failCount > 0) {
+            window.showToast('图片上传失败', 'error');
+        }
+    }
+
+    // 监听隐藏选择框的变化
+    editorImageInput.addEventListener('change', function () {
+        if (this.files && this.files.length > 0) {
+            uploadAndInsert(this.files);
+            this.value = ''; // 清空选择，允许重复上传同一张图
         }
     });
 </script>

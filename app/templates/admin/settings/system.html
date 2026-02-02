@@ -1,6 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block title %}系统信息 - {{ blog_title }}{% endblock %}
+{% block mobile_title %}系统信息{% endblock %}
 
 {% block admin_content %}
 <div class="page-header">
@@ -12,15 +13,15 @@
             <h3>软件环境</h3>
             <div class="info-list">
                 <div class="info-item">
-                    <span class="label">Python 版本</span>
+                    <span class="label label-column">Python 版本</span>
                     <span class="value">{{ info.python_version }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">Flask 版本</span>
+                    <span class="label label-column">Flask 版本</span>
                     <span class="value">{{ info.flask_version }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">操作系统</span>
+                    <span class="label label-column">操作系统</span>
                     <span class="value">{{ info.platform }}</span>
                 </div>
             </div>
@@ -30,19 +31,19 @@
             <h3>数据统计</h3>
             <div class="info-list">
                 <div class="info-item">
-                    <span class="label">文章总数</span>
+                    <span class="label label-column">文章总数</span>
                     <span class="value">{{ info.total_posts }} 篇</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">动态总数</span>
+                    <span class="label label-column">动态总数</span>
                     <span class="value">{{ info.total_weibo }} 条</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">数据库体积</span>
+                    <span class="label label-column">数据库体积</span>
                     <span class="value">{{ info.database_size }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">附件外网占用</span>
+                    <span class="label label-column">附件外网占用</span>
                     <span class="value">{{ info.upload_size }}</span>
                 </div>
             </div>
@@ -52,11 +53,11 @@
             <h3>服务器状态</h3>
             <div class="info-list">
                 <div class="info-item">
-                    <span class="label">系统时间</span>
+                    <span class="label label-column">系统时间</span>
                     <span class="value">{{ info.server_time }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">调试模式</span>
+                    <span class="label label-column">调试模式</span>
                     <span class="value">{{ info.debug_mode }}</span>
                 </div>
             </div>

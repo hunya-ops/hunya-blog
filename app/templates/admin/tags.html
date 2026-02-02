@@ -1,16 +1,29 @@
 {% extends "admin/base.html" %}
 
 {% block title %}标签管理 - {{ blog_title }}{% endblock %}
+{% block mobile_title %}标签管理{% endblock %}
+
+{% block mobile_header_actions %}
+{% if empty_count > 0 %}
+<form method="POST" action="{{ url_for('admin.clean_empty_tags') }}" id="clean-tags-form" class="confirm-form"
+    data-message="确定删除吗？此操作不可撤销。">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <button type="submit" class="btn-header-publish" style="background-color: #ff3b30;">
+        清理
+    </button>
+</form>
+{% endif %}
+{% endblock %}
 
 {% block admin_content %}
 <div class="page-header">
     <h1>标签管理</h1>
-    <div class="header-actions">
+    <div class="header-actions hide-on-mobile">
         {% if empty_count > 0 %}
-        <form method="POST" action="{{ url_for('admin.clean_empty_tags') }}">
+        <form method="POST" action="{{ url_for('admin.clean_empty_tags') }}" class="confirm-form"
+            data-message="确定删除吗？此操作不可撤销。">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <button type="submit" class="btn btn-primary" style="background-color: #ff3b30;"
-                onclick="return confirm('确定删除所有空标签吗？')">
+            <button type="submit" class="btn btn-primary" style="background-color: #ff3b30;">
                 清理空标签 ({{ empty_count }})
             </button>
         </form>
@@ -19,35 +32,58 @@
 </div>
 
 {% if tags_data %}
-<table class="data-table">
-    <thead>
-        <tr>
-            <th style="width:60%">标签名称</th>
-            <th style="width:20%">文章数量</th>
-            <th style="width:20%">操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in tags_data %}
-        <tr>
-            <td>
-                <a href="{{ url_for('main.tag_posts', tag_name=item.tag.name) }}" target="_blank">
-                    {{ item.tag.name }}
-                </a>
-            </td>
-            <td>{{ item.count }}</td>
-            <td>
-                {% if item.count == 0 %}
-                <span class="status-badge status-draft">空标签</span>
-                {% else %}
-                <a href="{{ url_for('main.tag_posts', tag_name=item.tag.name) }}" target="_blank">查看</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:60%">标签名称</th>
+                <th style="width:20%">文章数量</th>
+                <th style="width:20%">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in tags_data %}
+            <tr class="tag-row">
+                <td class="tag-main-cell">
+                    <a href="{{ url_for('main.tag_posts', tag_name=item.tag.name) }}" target="_blank"
+                        class="tag-link {{ 'stretched-link' if item.count > 0 else '' }}">
+                        {{ item.tag.name }}
+                    </a>
+                </td>
+                <td class="tag-count-cell">
+                    <span class="count-label hide-on-mobile">文章数量:</span> {{ item.count }}
+                </td>
+                <td class="tag-status-cell">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% else %}
 <p class="empty-tip">暂无标签</p>
 {% endif %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmForms = document.querySelectorAll('.confirm-form');
+        confirmForms.forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const message = this.dataset.message || '你确定要执行此操作吗？';
+                const confirmed = await window.confirmAction({
+                    title: '确认操作',
+                    message: message,
+                    confirmText: '确认',
+                    cancelText: '取消',
+                    isDanger: true
+                });
+                if (confirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

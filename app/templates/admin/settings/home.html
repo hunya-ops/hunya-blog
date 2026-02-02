@@ -1,6 +1,11 @@
 {% extends "admin/base.html" %}
 
 {% block title %}首页配置 - {{ blog_title }}{% endblock %}
+{% block mobile_title %}首页配置{% endblock %}
+
+{% block mobile_header_actions %}
+<button type="submit" form="home-settings-form" class="btn-header-publish">保存</button>
+{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
@@ -14,7 +19,7 @@
     </div>
 </div>
 
-<form method="POST" class="editor-layout">
+<form method="POST" class="editor-layout" id="home-settings-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
     <div class="editor-main">
@@ -25,7 +30,7 @@
     </div>
 
     <div class="editor-sidebar">
-        <div class="sidebar-box">
+        <div class="sidebar-box hide-on-mobile">
             <h3>保存设置</h3>
             <p class="sidebar-info">内容将显示在博客根路径 (/) 页面。</p>
             <div class="sidebar-actions">

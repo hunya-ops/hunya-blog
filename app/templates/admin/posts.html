@@ -1,11 +1,18 @@
 {% extends "admin/base.html" %}
 
 {% block title %}{{ title }} - {{ blog_title }}{% endblock %}
+{% block mobile_title %}{{ title }}{% endblock %}
+
+{% block mobile_header_actions %}
+<a href="{{ url_for('admin.new_post', post_type='pulp' if '文章' in title else 'uncut') }}" class="btn-header-publish"
+    style="text-decoration: none;">新建</a>
+{% endblock %}
 
 {% block admin_content %}
 <div class="page-header">
     <h1>{{ title }}</h1>
-    <a href="{{ url_for('admin.new_post', post_type='pulp' if '文章' in title else 'uncut') }}" class="btn btn-primary">
+    <a href="{{ url_for('admin.new_post', post_type='pulp' if '文章' in title else 'uncut') }}"
+        class="btn btn-primary hide-on-mobile">
         新建{{ '文章' if '文章' in title else '动态' }}
     </a>
 </div>
@@ -19,90 +26,122 @@
         class="{{ 'active' if current_status == 'draft' else '' }}">草稿箱</a>
 </div>
 
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>{{ '标题' if '文章' in title else '内容' }}</th>
-            <th width="100">状态</th>
-            <th width="160">时间</th>
-            <th width="200">操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for post in posts.items %}
-        <tr>
-            <td class="content-cell">
-                <div class="post-title-link">
-                    {% if post.title %}
-                    <strong>{{ post.title }}</strong>
-                    {% else %}
-                    {% set excerpt = post.get_excerpt(60)|trim %}
-                    {% if excerpt %}
-                    {{ excerpt }}
-                    {% else %}
-                    <em style="color: var(--apple-secondary); opacity: 0.6;">无正文</em>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            </td>
-            <td>
-                {% if post.is_published %}
-                <span class="badge badge-success">已发布</span>
-                {% else %}
-                <span class="badge badge-gray">草稿</span>
-                {% endif %}
-            </td>
-            <td class="time-cell">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td class="actions">
-                <div class="action-group">
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>{{ '标题' if '文章' in title else '内容' }}</th>
+                <th width="100">状态</th>
+                <th width="160">时间</th>
+                <th width="200">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts.items %}
+            <tr>
+                <td class="content-cell">
+                    <div class="post-title-link">
+                        {% if post.title %}
+                        <strong>{{ post.title }}</strong>
+                        {% else %}
+                        {% set excerpt = post.get_excerpt(60)|trim %}
+                        {% if excerpt %}
+                        {{ excerpt }}
+                        {% else %}
+                        <em style="color: var(--apple-secondary); opacity: 0.6;">无正文</em>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
                     {% if post.is_published %}
-                    <a href="{{ post.url }}" target="_blank" class="action-btn">查看</a>
+                    <span class="badge badge-success">已发布</span>
+                    {% else %}
+                    <span class="badge badge-gray">草稿</span>
                     {% endif %}
-                    <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="action-btn">编辑</a>
-                    <form method="POST" action="{{ url_for('admin.toggle_publish', post_id=post.id) }}"
-                        style="display:inline">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                        <button type="submit" class="action-btn">{{ '下线' if post.is_published else '发布' }}</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('admin.delete_post', post_id=post.id) }}"
-                        style="display:inline" onsubmit="return confirm('确定删除？')">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                        <button type="submit" class="action-btn danger">删除</button>
-                    </form>
-                </div>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="4" class="empty">暂无相关内容</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                </td>
+                <td class="time-cell">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="actions">
+                    <div class="action-group">
+                        {% if post.is_published %}
+                        <a href="{{ post.url }}" target="_blank" class="action-btn">查看</a>
+                        {% else %}
+                        <span class="action-btn disabled">查看</span>
+                        {% endif %}
+                        <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="action-btn">编辑</a>
+                        <form method="POST" action="{{ url_for('admin.toggle_publish', post_id=post.id) }}"
+                            style="display:inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                            <button type="submit" class="action-btn">{{ '下线' if post.is_published else '发布' }}</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin.delete_post', post_id=post.id) }}"
+                            style="display:inline" class="delete-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                            <button type="submit" class="action-btn danger">删除</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="empty">暂无相关内容</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 {% if posts.pages > 1 %}
 <div class="admin-pagination">
-    <div class="pagination-info">共 {{ posts.total }} 条，第 {{ posts.page }}/{{ posts.pages }} 页</div>
+    <div class="pagination-info hide-on-mobile">共 {{ posts.total }} 条，第 {{ posts.page }}/{{ posts.pages }} 页</div>
     <div class="pagination-links">
         {% if posts.has_prev %}
-        <a href="{{ url_for(request.endpoint, page=posts.prev_num, status=current_status) }}" class="page-link">&laquo;
-            上一页</a>
+        <a href="{{ url_for(request.endpoint, page=posts.prev_num, status=current_status) }}"
+            class="page-link prev-btn">&laquo; 上一页</a>
         {% endif %}
 
-        {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-        {% if page_num %}
-        <a href="{{ url_for(request.endpoint, page=page_num, status=current_status) }}"
-            class="page-link {{ 'active' if page_num == posts.page else '' }}">{{ page_num }}</a>
-        {% else %}
-        <span class="page-dots">...</span>
-        {% endif %}
-        {% endfor %}
+        <div class="page-numbers-wrap hide-on-mobile">
+            {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+            <a href="{{ url_for(request.endpoint, page=page_num, status=current_status) }}"
+                class="page-link {{ 'active' if page_num == posts.page else '' }}">{{ page_num }}</a>
+            {% else %}
+            <span class="page-dots">...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="mobile-page-info show-on-mobile">
+            {{ posts.page }} / {{ posts.pages }}
+        </div>
 
         {% if posts.has_next %}
-        <a href="{{ url_for(request.endpoint, page=posts.next_num, status=current_status) }}" class="page-link">下一页
-            &raquo;</a>
+        <a href="{{ url_for(request.endpoint, page=posts.next_num, status=current_status) }}"
+            class="page-link next-btn">下一页 &raquo;</a>
         {% endif %}
     </div>
 </div>
 {% endif %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteForms = document.querySelectorAll('.delete-form');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const confirmed = await window.confirmAction({
+                    title: '确认删除',
+                    message: '确定删除吗？此操作不可撤销。',
+                    confirmText: '确认删除',
+                    cancelText: '取消',
+                    isDanger: true
+                });
+                if (confirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

@@ -1,13 +1,18 @@
 {% extends "admin/base.html" %}
 
 {% block title %}基本信息 - {{ blog_title }}{% endblock %}
+{% block mobile_title %}基本信息{% endblock %}
+
+{% block mobile_header_actions %}
+<button type="submit" form="basic-settings-form" class="btn-header-publish">保存</button>
+{% endblock %}
 
 {% block admin_content %}
 <div class="page-header">
     <h1>基本信息</h1>
 </div>
 <div class="settings-page">
-    <form method="POST">
+    <form method="POST" id="basic-settings-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
         <div class="settings-grid">
@@ -37,13 +42,13 @@
                 <div class="form-group">
                     <label style="margin-bottom: 16px;">内容过滤</label>
                     <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <label class="toggle-label">
+                        <label class="toggle-label vertical-center">
                             <input type="checkbox" name="archive_show_uncut" value="1" {{ 'checked' if
                                 archive_show_uncut else '' }}>
                             <span class="toggle-switch"></span>
                             <span>在归档列表中包含动态</span>
                         </label>
-                        <label class="toggle-label">
+                        <label class="toggle-label vertical-center">
                             <input type="checkbox" name="tag_show_uncut" value="1" {{ 'checked' if tag_show_uncut
                                 else '' }}>
                             <span class="toggle-switch"></span>
@@ -57,12 +62,12 @@
             <div class="settings-card">
                 <h2><span>🧭</span> 导航可见性</h2>
                 <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <label class="toggle-label">
+                    <label class="toggle-label vertical-center">
                         <input type="checkbox" name="show_archive" value="1" {{ 'checked' if show_archive else '' }}>
                         <span class="toggle-switch"></span>
                         <span>显示归档页面入口</span>
                     </label>
-                    <label class="toggle-label">
+                    <label class="toggle-label vertical-center">
                         <input type="checkbox" name="show_tags" value="1" {{ 'checked' if show_tags else '' }}>
                         <span class="toggle-switch"></span>
                         <span>显示标签页面入口</span>
@@ -83,7 +88,7 @@
             </div>
 
             <!-- 底部保存栏 -->
-            <div class="settings-footer">
+            <div class="settings-footer hide-on-mobile">
                 <button type="submit" class="btn btn-primary"
                     style="padding: 12px 40px; font-size: 15px;">保存所有设置</button>
             </div>
@@ -99,8 +104,10 @@
         gap: 12px;
         cursor: pointer;
         font-size: 14px;
+        font-weight: 600;
         color: var(--apple-text);
         padding: 4px 0;
+        margin-bottom: 0 !important;
     }
 
     .toggle-label input[type="checkbox"] {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{{ blog_description }}">
     <title>{% block title %}{{ blog_title }}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=33">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=34">
     <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ url_for('feed.rss_feed') }}">
     <script>
         (function () {
@@ -81,12 +81,7 @@
     </header>
 
     <main class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-        <article class="flash flash-{{ category }}">{{ message }}</article>
-        {% endfor %}
-        {% endwith %}
-
+        <div id="toast-container" class="toast-container"></div>
         {% block content %}{% endblock %}
     </main>
 
@@ -114,6 +109,31 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toast System
+            const toastContainer = document.getElementById('toast-container');
+
+            window.showToast = function (message, category = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${category}`;
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+
+                // Remove toast after animation
+                setTimeout(() => {
+                    toast.remove();
+                }, 4500);
+            };
+
+            // Process Flash Messages
+            {% with messages = get_flashed_messages(with_categories = true) %}
+            {% for category, message in messages %}
+            showToast("{{ message }}", "{{ category }}");
+            {% endfor %}
+            {% endwith %}
+        });
+    </script>
     <script src="{{ url_for('static', filename='js/lightbox.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>

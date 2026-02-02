@@ -1,11 +1,24 @@
 {% extends "admin/base.html" %}
 
+{% block title %}图片管理 - {{ blog_title }}{% endblock %}
+{% block mobile_title %}图片管理{% endblock %}
+
+{% block mobile_header_actions %}
+<form action="{{ url_for('admin.clean_unused_images') }}" method="POST" id="clean-images-form" class="confirm-form"
+    data-message="确定要删除所有未使用的图片吗？此操作不可恢复！">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn-header-publish" style="background-color: #ff3b30;">
+        清理
+    </button>
+</form>
+{% endblock %}
+
 {% block admin_content %}
 <div class="page-header">
     <h1>图片管理</h1>
-    <div class="header-actions">
-        <form action="{{ url_for('admin.clean_unused_images') }}" method="POST"
-            onsubmit="return confirm('确定要删除所有未使用的图片吗？此操作不可恢复！');">
+    <div class="header-actions hide-on-mobile">
+        <form action="{{ url_for('admin.clean_unused_images') }}" method="POST" class="confirm-form"
+            data-message="确定要删除所有未使用的图片吗？此操作不可恢复！">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-primary" style="background-color: #ff3b30;">
                 <i class="ri-delete-bin-line"></i> 一键清理未使用
@@ -23,14 +36,15 @@
 <!-- 图片网格 -->
 <div class="image-grid">
     {% for file in files %}
-    <div class="image-card {% if not file.is_used %}unused{% endif %}">
+    <div class="image-card {% if not file.is_used %}unused{% endif %}"
+        onclick="openLightbox('{{ file.url }}', '{{ file.name }}', {{ 'true' if not file.is_used else 'false' }})">
         <div class="img-wrapper">
             <img src="{{ file.url }}" alt="{{ file.name }}" loading="lazy">
             {% if not file.is_used %}
             <div class="unused-tag">未使用</div>
             {% endif %}
         </div>
-        <div class="img-info">
+        <div class="img-info hide-on-mobile">
             <div class="img-name" title="{{ file.name }}">{{ file.name }}</div>
             <div class="img-meta">
                 <span>{{ file.size_fmt }}</span>
@@ -39,7 +53,7 @@
             <div class="img-actions">
                 <a href="{{ file.url }}" target="_blank" class="action-btn">查看</a>
                 <form action="{{ url_for('admin.delete_image', filename=file.name) }}" method="POST"
-                    onsubmit="return confirm('确定删除这张图片吗？');" style="display:inline;">
+                    class="confirm-form" data-message="确定删除吗？此操作不可撤销。" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="action-btn danger">删除</button>
                 </form>
@@ -48,6 +62,47 @@
     </div>
     {% endfor %}
 </div>
+
+<!-- 图片详情灯箱 (Mobile Only Design) -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+        <img id="lightbox-img" src="" alt="预览">
+        <div class="lightbox-info">
+            <div id="lightbox-name" class="lightbox-name"></div>
+            <div class="lightbox-actions">
+                <form id="lightbox-delete-form" method="POST" class="confirm-form" data-message="确定删除吗？此操作不可撤销。">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-delete-lightbox">删除图片</button>
+                </form>
+                <button class="btn-close-lightbox" onclick="closeLightbox(event)">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openLightbox(url, name, isUnused) {
+        if (window.innerWidth > 768) return; // Only for mobile
+
+        const lightbox = document.getElementById('lightbox');
+        const img = document.getElementById('lightbox-img');
+        const nameEl = document.getElementById('lightbox-name');
+        const deleteForm = document.getElementById('lightbox-delete-form');
+
+        img.src = url;
+        nameEl.textContent = name;
+        deleteForm.action = "{{ url_for('admin.delete_image', filename='FILENAME_HOLDER') }}".replace('FILENAME_HOLDER', name);
+
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(event) {
+        const lightbox = document.getElementById('lightbox');
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+</script>
 
 <style>
     .image-grid {
@@ -62,6 +117,11 @@
         border: 1px solid var(--apple-border);
         overflow: hidden;
         transition: all 0.2s ease;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+        outline: none;
     }
 
     .image-card:hover {
@@ -69,13 +129,13 @@
         box-shadow: var(--apple-shadow-md);
     }
 
-    .image-card.unused {
-        border-color: #ff3b30;
+    .image-card:active {
+        transform: translateY(0);
         opacity: 0.8;
     }
 
-    .image-card.unused:hover {
-        opacity: 1;
+    .image-card.unused {
+        border-color: #ff3b30;
     }
 
     .img-wrapper {
@@ -135,5 +195,140 @@
         padding-top: 8px;
         border-top: 1px solid var(--apple-border);
     }
+
+    /* Lightbox Styles */
+    .lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.25s ease;
+        pointer-events: none;
+    }
+
+    .lightbox.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .lightbox-content {
+        max-width: 100%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .lightbox-content img {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .lightbox-info {
+        width: 100%;
+        text-align: center;
+        color: white;
+    }
+
+    .lightbox-name {
+        font-size: 14px;
+        margin-bottom: 20px;
+        opacity: 0.8;
+        word-break: break-all;
+    }
+
+    .lightbox-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .lightbox-actions button,
+    .lightbox-actions form {
+        width: 100%;
+    }
+
+    .btn-delete-lightbox {
+        background: #ff3b30 !important;
+        color: white !important;
+        border: none !important;
+        padding: 12px !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        width: 100%;
+    }
+
+    .btn-close-lightbox {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        padding: 10px !important;
+        border-radius: 12px !important;
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .image-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .img-wrapper {
+            height: auto;
+            aspect-ratio: 1/1;
+        }
+
+        .image-card {
+            border-radius: 8px;
+        }
+
+        .unused-tag {
+            font-size: 9px;
+            padding: 1px 4px;
+            top: 4px;
+            right: 4px;
+        }
+    }
 </style>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmForms = document.querySelectorAll('.confirm-form');
+        confirmForms.forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const message = this.dataset.message || '你确定要执行此操作吗？';
+                const confirmed = await window.confirmAction({
+                    title: '确认操作',
+                    message: message,
+                    confirmText: '确认',
+                    cancelText: '取消',
+                    isDanger: true
+                });
+                if (confirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

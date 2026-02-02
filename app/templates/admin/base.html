@@ -5,13 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}管理后台{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=36">
     {% block head %}{% endblock %}
 </head>
 
 <body>
     <div class="admin-layout">
-        <aside class="sidebar">
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <header class="mobile-header">
+            <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="mobile-logo">
+                <a href="{{ url_for('admin.dashboard') }}">
+                    {% block mobile_title %}{{ blog_title }}{% endblock %}
+                </a>
+            </div>
+            <div class="mobile-header-actions">
+                {% block mobile_header_actions %}{% endblock %}
+            </div>
+        </header>
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="{{ url_for('admin.dashboard') }}">{{ blog_title }}</a>
             </div>
@@ -45,15 +64,140 @@
             </div>
         </aside>
         <main class="main-content">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-            <div class="flash flash-{{ category }}">{{ message }}</div>
-            {% endfor %}
-            {% endwith %}
+            <div id="toast-container" class="toast-container"></div>
             {% block admin_content %}{% endblock %}
         </main>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const body = document.body;
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            if (toggle) {
+                toggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', toggleSidebar);
+            }
+
+            // Close sidebar when clicking on a nav item on mobile
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 1024) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // Toast System
+            const toastContainer = document.getElementById('toast-container');
+
+            window.showToast = function (message, category = 'info') {
+                // Clear existing toasts to avoid overlapping
+                toastContainer.innerHTML = '';
+
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${category}`;
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+
+                // Remove toast after animation
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 4500);
+            };
+
+            // Loading Overlay System
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+
+            window.toggleLoading = function (show, message = '正在处理...') {
+                if (show) {
+                    loadingText.textContent = message;
+                    loadingOverlay.classList.add('active');
+                } else {
+                    loadingOverlay.classList.remove('active');
+                }
+            };
+
+            // Process Flash Messages
+            {% with messages = get_flashed_messages(with_categories = true) %}
+            {% for category, message in messages %}
+            showToast("{{ message }}", "{{ category }}");
+            {% endfor %}
+            {% endwith %}
+
+            // Confirmation Modal
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmTitle = document.getElementById('confirm-title');
+            const confirmMsg = document.getElementById('confirm-msg');
+            const confirmBtn = document.getElementById('confirm-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            let confirmCallback = null;
+
+            window.confirmAction = function (options) {
+                const { title, message, confirmText, cancelText, isDanger } = options;
+                confirmTitle.textContent = title || '确认操作';
+                confirmMsg.textContent = message || '你确定要执行此操作吗？';
+                confirmBtn.textContent = confirmText || '确认';
+                cancelBtn.textContent = cancelText || '取消';
+
+                if (isDanger) {
+                    confirmBtn.classList.add('danger');
+                } else {
+                    confirmBtn.classList.remove('danger');
+                }
+
+                confirmModal.classList.add('active');
+                return new Promise((resolve) => {
+                    confirmCallback = resolve;
+                });
+            };
+
+            confirmBtn.addEventListener('click', () => {
+                confirmModal.classList.remove('active');
+                if (confirmCallback) confirmCallback(true);
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                confirmModal.classList.remove('active');
+                if (confirmCallback) confirmCallback(false);
+            });
+        });
+    </script>
     {% block scripts %}{% endblock %}
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-container">
+            <div class="modal-body">
+                <h3 id="confirm-title">确认操作</h3>
+                <p id="confirm-msg">你确定要执行此操作吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-btn">取消</button>
+                <button type="button" id="confirm-btn">确认</button>
+            </div>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loading-text">正在上传图片...</div>
+        </div>
+    </div>
 </body>
 
 </html>

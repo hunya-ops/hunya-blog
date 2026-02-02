@@ -106,12 +106,13 @@ def new_post(post_type='uncut'):
             image_urls = ','.join([url.strip() for url in image_urls_raw.split(',') 
                                  if url.strip() and url.strip() != 'None'])
         
+        action = request.form.get('action')
         post = Post(
             post_type=request.form.get('post_type', post_type),
             title=request.form.get('title') or None,
             content=request.form.get('content'),
             image_urls=image_urls,
-            is_published=request.form.get('action') == 'publish'
+            is_published=(action == 'publish')
         )
         if created_at:
             post.created_at = created_at
@@ -120,7 +121,11 @@ def new_post(post_type='uncut'):
         db.session.add(post)
         db.session.commit()
         cache.clear()
-        flash('发布成功', 'success')
+        
+        if post.is_published:
+            flash('已发布', 'success')
+        else:
+            flash('已存为草稿', 'success')
         return redirect(url_for('admin.pulp') if post.post_type == 'pulp' else url_for('admin.uncut'))
 
     return render_template('admin/editor.html', post=None, post_type=post_type, now=datetime.now())
@@ -143,7 +148,7 @@ def edit_post(post_id):
         else:
             post.image_urls = None
             
-        post.is_published = request.form.get('action') == 'publish'
+        action = request.form.get('action')
         post.set_tags(request.form.get('tags', ''))
         
         # 解析并更新发布时间
@@ -154,9 +159,21 @@ def edit_post(post_id):
             except ValueError:
                 pass
 
+        # 根据动作更新发布状态
+        if action == 'publish':
+            post.is_published = True
+            msg = '已发布'
+        elif action == 'unpublish':
+            post.is_published = False
+            msg = '已取消发布'
+        else: # action == 'save' / 'draft'
+            # 保持原有状态不变
+            msg = '已更新' if post.is_published else '草稿已更新'
+
         db.session.commit()
         cache.clear()
-        flash('更新成功', 'success')
+        
+        flash(msg, 'success')
         return redirect(url_for('admin.pulp') if post.post_type == 'pulp' else url_for('admin.uncut'))
 
     return render_template('admin/editor.html', post=post, post_type=post.post_type)
@@ -182,7 +199,7 @@ def toggle_publish(post_id):
     db.session.commit()
     cache.clear()
     status = '已发布' if post.is_published else '已取消发布'
-    flash(f'文章{status}', 'success')
+    flash(status, 'success')
     return redirect(request.referrer or url_for('admin.dashboard'))
 
 

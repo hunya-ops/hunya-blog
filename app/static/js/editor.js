@@ -169,6 +169,15 @@ function renderImages() {
     if (!imageGrid) return;
     imageGrid.innerHTML = '';
 
+    // Toggle container class for styling
+    if (uploadArea) {
+        if (images.length > 0) {
+            uploadArea.classList.add('has-images');
+        } else {
+            uploadArea.classList.remove('has-images');
+        }
+    }
+
     images.forEach((img, index) => {
         const item = document.createElement('div');
         item.className = 'image-item';
