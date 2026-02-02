@@ -73,7 +73,7 @@ def create_app(config_class=Config):
 
     @app.after_request
     def add_cache_header(response):
-        from flask import g, request
+        from flask import g, request, current_app
         # 仅针对主站 GET 请求添加缓存状态头
         if request.method == 'GET' and request.endpoint and request.endpoint.startswith('main.'):
             # 如果进入了视图函数，g._cache_miss 会被设为 True (MISS)
