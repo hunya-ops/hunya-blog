@@ -8,7 +8,7 @@ services:
       - ./app/static/uploads:/app/app/static/uploads
       - ./env:/app/.env
     environment:
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
     depends_on:
       - redis
     restart: unless-stopped
