@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, g
 from app import db, cache
 from app.models import Post, Tag, Setting
 from sqlalchemy import extract
@@ -18,6 +18,7 @@ def get_posts_per_page():
 @cache.cached(timeout=600)
 def index():
     """Common homepage showing configured Home content"""
+    g._cache_miss = True
     content = Setting.get('home_content', '')
     return render_template('home.html', content=content, page_title='首页')
 
@@ -26,6 +27,7 @@ def index():
 @cache.cached(timeout=300, query_string=True)
 def uncut():
     """Uncut (Dynamic posts)"""
+    g._cache_miss = True
     page = request.args.get('page', 1, type=int)
     posts = Post.get_published_posts(post_type='uncut').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='动态')
@@ -35,6 +37,7 @@ def uncut():
 @cache.cached(timeout=300, query_string=True)
 def pulp():
     """Pulp articles only"""
+    g._cache_miss = True
     page = request.args.get('page', 1, type=int)
     posts = Post.get_published_posts(post_type='pulp').paginate(page=page, per_page=get_posts_per_page())
     return render_template('index.html', posts=posts, page_title='文章')
@@ -44,6 +47,7 @@ def pulp():
 @main_bp.route('/uncut/<short_id>', endpoint='uncut_detail')
 @cache.cached(timeout=3600)
 def post_detail(short_id):
+    g._cache_miss = True
     post = Post.query.filter_by(short_id=short_id).first_or_404()
     # Redirect if accessed with wrong prefix for SEO and consistency
     if request.path.startswith('/pulp/') and post.post_type != 'pulp':
@@ -56,6 +60,7 @@ def post_detail(short_id):
 @main_bp.route('/tag/<tag_name>')
 @cache.cached(timeout=600, query_string=True)
 def tag_posts(tag_name):
+    g._cache_miss = True
     # Special case for untagged posts
     if tag_name == '无标签':
         return untagged_posts()
@@ -120,6 +125,7 @@ def untagged_posts():
 @main_bp.route('/archive')
 @cache.cached(timeout=600, query_string=True)
 def archive():
+    g._cache_miss = True
     # Check if archive page is enabled
     if Setting.get('show_archive', '1') != '1':
         return redirect(url_for('main.index'))
@@ -184,6 +190,7 @@ def archive():
 @main_bp.route('/tags')
 @cache.cached(timeout=3600)
 def all_tags():
+    g._cache_miss = True
     # Check if tags page is enabled
     if Setting.get('show_tags', '1') != '1':
         return redirect(url_for('main.index'))

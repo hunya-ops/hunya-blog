@@ -71,6 +71,17 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
 
+    @app.after_request
+    def add_cache_header(response):
+        from flask import g, request
+        # 仅针对主站 GET 请求添加缓存状态头
+        if request.method == 'GET' and request.endpoint and request.endpoint.startswith('main.'):
+            # 如果进入了视图函数，g._cache_miss 会被设为 True (MISS)
+            # 如果没进入（命中缓存），则保持默认 False，即为 HIT
+            is_miss = getattr(g, '_cache_miss', False)
+            response.headers['X-Cache-Status'] = 'MISS' if is_miss else 'HIT'
+        return response
+
     # 注册错误处理器
     @app.errorhandler(404)
     def page_not_found(e):
