@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, current_app, redirect, url_for
-from app import db
+from app import db, cache
 from app.models import Post, Tag, Setting
 from sqlalchemy import extract
 
@@ -15,6 +15,7 @@ def get_posts_per_page():
 
 
 @main_bp.route('/')
+@cache.cached(timeout=600)
 def index():
     """Common homepage showing configured Home content"""
     content = Setting.get('home_content', '')
@@ -22,6 +23,7 @@ def index():
 
 
 @main_bp.route('/uncut')
+@cache.cached(timeout=300, query_string=True)
 def uncut():
     """Uncut (Dynamic posts)"""
     page = request.args.get('page', 1, type=int)
@@ -30,6 +32,7 @@ def uncut():
 
 
 @main_bp.route('/pulp')
+@cache.cached(timeout=300, query_string=True)
 def pulp():
     """Pulp articles only"""
     page = request.args.get('page', 1, type=int)
@@ -39,6 +42,7 @@ def pulp():
 
 @main_bp.route('/pulp/<short_id>', endpoint='pulp_detail')
 @main_bp.route('/uncut/<short_id>', endpoint='uncut_detail')
+@cache.cached(timeout=3600)
 def post_detail(short_id):
     post = Post.query.filter_by(short_id=short_id).first_or_404()
     # Redirect if accessed with wrong prefix for SEO and consistency
@@ -50,6 +54,7 @@ def post_detail(short_id):
 
 
 @main_bp.route('/tag/<tag_name>')
+@cache.cached(timeout=600, query_string=True)
 def tag_posts(tag_name):
     # Special case for untagged posts
     if tag_name == '无标签':
@@ -113,6 +118,7 @@ def untagged_posts():
 
 
 @main_bp.route('/archive')
+@cache.cached(timeout=600, query_string=True)
 def archive():
     # Check if archive page is enabled
     if Setting.get('show_archive', '1') != '1':
@@ -176,6 +182,7 @@ def archive():
 
 
 @main_bp.route('/tags')
+@cache.cached(timeout=3600)
 def all_tags():
     # Check if tags page is enabled
     if Setting.get('show_tags', '1') != '1':

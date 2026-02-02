@@ -5,6 +5,7 @@ from markupsafe import Markup
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
+from flask_caching import Cache
 from config import Config
 from werkzeug.middleware.proxy_fix import ProxyFix
 from pillow_heif import register_heif_opener
@@ -15,6 +16,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'admin.login'
 csrf = CSRFProtect()
+cache = Cache()
 
 
 def create_app(config_class=Config):
@@ -27,6 +29,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    cache.init_app(app)
 
     # Markdown 过滤器
     @app.template_filter('markdown')

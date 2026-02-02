@@ -6,7 +6,7 @@ import sys
 import os
 import re
 from datetime import datetime
-from app import db
+from app import db, cache
 from app.models import Post, Tag, Admin, Setting, Image
 
 admin_bp = Blueprint('admin', __name__)
@@ -119,6 +119,7 @@ def new_post(post_type='uncut'):
         
         db.session.add(post)
         db.session.commit()
+        cache.clear()
         flash('发布成功', 'success')
         return redirect(url_for('admin.pulp') if post.post_type == 'pulp' else url_for('admin.uncut'))
 
@@ -154,6 +155,7 @@ def edit_post(post_id):
                 pass
 
         db.session.commit()
+        cache.clear()
         flash('更新成功', 'success')
         return redirect(url_for('admin.pulp') if post.post_type == 'pulp' else url_for('admin.uncut'))
 
@@ -167,6 +169,7 @@ def delete_post(post_id):
     post_type = post.post_type
     db.session.delete(post)
     db.session.commit()
+    cache.clear()
     flash('已删除', 'success')
     return redirect(url_for('admin.pulp') if post_type == 'pulp' else url_for('admin.uncut'))
 
@@ -177,6 +180,7 @@ def toggle_publish(post_id):
     post = Post.query.get_or_404(post_id)
     post.is_published = not post.is_published
     db.session.commit()
+    cache.clear()
     status = '已发布' if post.is_published else '已取消发布'
     flash(f'文章{status}', 'success')
     return redirect(request.referrer or url_for('admin.dashboard'))
@@ -203,6 +207,7 @@ def clean_empty_tags():
     for tag in empty_tags:
         db.session.delete(tag)
     db.session.commit()
+    cache.clear()
     flash(f'已删除 {count} 个空标签', 'success')
     return redirect(url_for('admin.tags'))
 
@@ -322,6 +327,7 @@ def settings_home():
     if request.method == 'POST':
         content = request.form.get('content', '')
         Setting.set('home_content', content)
+        cache.clear()
         flash('首页内容已保存', 'success')
         return redirect(url_for('admin.settings_home'))
 
@@ -349,6 +355,7 @@ def settings_basic():
         # New: Uncut posts visibility settings
         Setting.set('archive_show_uncut', '1' if request.form.get('archive_show_uncut') else '0')
         Setting.set('tag_show_uncut', '1' if request.form.get('tag_show_uncut') else '0')
+        cache.clear()
         flash('设置已保存', 'success')
         return redirect(url_for('admin.settings_basic'))
 

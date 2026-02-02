@@ -55,4 +55,8 @@ class Config:
     # Blog Configuration
     BLOG_TITLE = os.environ.get('BLOG_TITLE') or '我的博客'
     BLOG_DESCRIPTION = os.environ.get('BLOG_DESCRIPTION') or '一个简单的博客'
+    # Cache Configuration
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT = 300
+
     POSTS_PER_PAGE = 20
