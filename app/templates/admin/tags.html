@@ -5,14 +5,17 @@
 {% block admin_content %}
 <div class="page-header">
     <h1>标签管理</h1>
-    {% if empty_count > 0 %}
-    <form method="POST" action="{{ url_for('admin.clean_empty_tags') }}" style="display:inline">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <button type="submit" class="btn btn-secondary" onclick="return confirm('确定删除所有空标签吗？')">
-            清理空标签 ({{ empty_count }})
-        </button>
-    </form>
-    {% endif %}
+    <div class="header-actions">
+        {% if empty_count > 0 %}
+        <form method="POST" action="{{ url_for('admin.clean_empty_tags') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn btn-primary" style="background-color: #ff3b30;"
+                onclick="return confirm('确定删除所有空标签吗？')">
+                清理空标签 ({{ empty_count }})
+            </button>
+        </form>
+        {% endif %}
+    </div>
 </div>
 
 {% if tags_data %}

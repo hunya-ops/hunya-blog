@@ -7,64 +7,100 @@
     <h1>基本信息</h1>
 </div>
 <div class="settings-page">
-    <form method="POST" class="settings-form-full">
+    <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <div class="form-group">
-            <label>站点标题</label>
-            <input type="text" name="blog_title" class="form-input" value="{{ blog_title }}">
-        </div>
-        <div class="form-group">
-            <label>站点描述</label>
-            <textarea name="blog_description" class="form-textarea" rows="4">{{ blog_description }}</textarea>
-        </div>
-        <div class="form-group">
-            <label>API Key (用于 iOS 快捷指令等外部发布)</label>
-            <input type="text" name="api_key" class="form-input" value="{{ api_key }}" placeholder="例如：my-secret-token">
-            <small style="color: var(--text-secondary); margin-top: 4px; display: block;">
-                请确保此密钥足够复杂以保证安全。
-            </small>
-        </div>
 
-        <div class="form-group" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
-            <label style="display: block; margin-bottom: 16px; font-weight: 600;">列表设置</label>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label>每页显示条数</label>
-                <input type="number" name="posts_per_page" class="form-input" value="{{ posts_per_page }}" min="5"
-                    max="100" style="width: 120px;">
+        <div class="settings-grid">
+            <!-- 站点信息卡片 -->
+            <div class="settings-card">
+                <h2><span>🏠</span> 站点信息</h2>
+                <div class="form-group">
+                    <label>站点标题</label>
+                    <input type="text" name="blog_title" class="form-input" value="{{ blog_title }}"
+                        placeholder="给你的博客起个名字">
+                </div>
+                <div class="form-group">
+                    <label>站点描述</label>
+                    <textarea name="blog_description" class="form-textarea" rows="4"
+                        placeholder="一句话介绍你的博客">{{ blog_description }}</textarea>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
-            <label style="display: block; margin-bottom: 16px; font-weight: 600;">导航栏显示</label>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <label class="toggle-label">
-                    <input type="checkbox" name="show_archive" value="1" {{ 'checked' if show_archive else '' }}>
-                    <span class="toggle-switch"></span>
-                    <span>显示归档页面</span>
-                </label>
-                <label class="toggle-label">
-                    <input type="checkbox" name="show_tags" value="1" {{ 'checked' if show_tags else '' }}>
-                    <span class="toggle-switch"></span>
-                    <span>显示标签页面</span>
-                </label>
+            <!-- 列表与展示卡片 -->
+            <div class="settings-card">
+                <h2><span>📋</span> 列表与展示</h2>
+                <div class="form-group">
+                    <label>每页显示条数 (首页)</label>
+                    <input type="number" name="posts_per_page" class="form-input" value="{{ posts_per_page }}" min="5"
+                        max="100">
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 16px;">内容过滤</label>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <label class="toggle-label">
+                            <input type="checkbox" name="archive_show_uncut" value="1" {{ 'checked' if
+                                archive_show_uncut else '' }}>
+                            <span class="toggle-switch"></span>
+                            <span>在归档列表中包含动态</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" name="tag_show_uncut" value="1" {{ 'checked' if tag_show_uncut
+                                else '' }}>
+                            <span class="toggle-switch"></span>
+                            <span>在标签详情中包含动态</span>
+                        </label>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="form-actions-bottom">
-            <button type="submit" class="btn btn-primary">保存设置</button>
+            <!-- 导航可见性卡片 -->
+            <div class="settings-card">
+                <h2><span>🧭</span> 导航可见性</h2>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <label class="toggle-label">
+                        <input type="checkbox" name="show_archive" value="1" {{ 'checked' if show_archive else '' }}>
+                        <span class="toggle-switch"></span>
+                        <span>显示归档页面入口</span>
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" name="show_tags" value="1" {{ 'checked' if show_tags else '' }}>
+                        <span class="toggle-switch"></span>
+                        <span>显示标签页面入口</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 高级集成卡片 -->
+            <div class="settings-card">
+                <h2><span>🔑</span> 高级集成</h2>
+                <div class="form-group">
+                    <label>API 密钥 (API Key)</label>
+                    <input type="text" name="api_key" class="form-input" value="{{ api_key }}" placeholder="用于第三方接入">
+                    <small style="color: var(--apple-secondary); margin-top: 8px; display: block; line-height: 1.4;">
+                        用于 iOS 快捷指令或 Markdown 编辑器远程发布。请妥善保管。
+                    </small>
+                </div>
+            </div>
+
+            <!-- 底部保存栏 -->
+            <div class="settings-footer">
+                <button type="submit" class="btn btn-primary"
+                    style="padding: 12px 40px; font-size: 15px;">保存所有设置</button>
+            </div>
         </div>
     </form>
 </div>
 
 <style>
+    /* 这里的样式复用 admin.css 中的变量和类，仅做局部补丁 */
     .toggle-label {
         display: flex;
         align-items: center;
-        gap: 24px;
+        gap: 12px;
         cursor: pointer;
-        font-weight: normal;
+        font-size: 14px;
+        color: var(--apple-text);
         padding: 4px 0;
-        line-height: 24px;
     }
 
     .toggle-label input[type="checkbox"] {
@@ -76,15 +112,12 @@
 
     .toggle-switch {
         display: inline-block;
-        flex-shrink: 0;
         width: 44px;
         height: 24px;
-        background: #ccc;
+        background: #e9e9eb;
         border-radius: 12px;
         position: relative;
-        transition: background 0.2s;
-        vertical-align: middle;
-        margin-right: 12px;
+        transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .toggle-switch::after {
@@ -96,20 +129,22 @@
         border-radius: 50%;
         top: 2px;
         left: 2px;
-        transition: transform 0.2s;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .toggle-label input:checked+.toggle-switch {
-        background: #007AFF;
+        background: #34c759;
     }
 
     .toggle-label input:checked+.toggle-switch::after {
         transform: translateX(20px);
     }
 
-    .toggle-label span:last-child {
-        line-height: 24px;
+    @media (max-width: 1200px) {
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}

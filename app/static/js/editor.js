@@ -10,7 +10,11 @@ let images = [];
 
 // 初始化已有图片
 if (imageUrlsInput && imageUrlsInput.value) {
-    images = imageUrlsInput.value.split(',').filter(url => url.trim());
+    // 增加过滤：排除 'None' 字符串以及空字符
+    images = imageUrlsInput.value.split(',')
+        .map(url => url.trim())
+        .filter(url => url && url !== 'None');
+    updateInput(); // 立即同步清理后的值到隐藏输入框
     renderImages();
 }
 
@@ -153,7 +157,10 @@ window.previewImage = function (url) {
 // 更新隐藏输入框
 function updateInput() {
     if (imageUrlsInput) {
-        imageUrlsInput.value = images.filter(img => typeof img === 'string').join(',');
+        // 确保只保存有效的 URL 字符串
+        imageUrlsInput.value = images
+            .filter(img => typeof img === 'string' && img.trim() !== '' && img !== 'None')
+            .join(',');
     }
 }
 

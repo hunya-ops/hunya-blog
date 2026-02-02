@@ -135,12 +135,18 @@
         var rects = squarify(tagData, 0, 0, containerWidth, containerHeight);
 
         rects.forEach(function (rect) {
+            // Skip extremely small rectangles that would be invisible/unusable
+            if (rect.width < 10 || rect.height < 10) return;
+
             var div = document.createElement('div');
             div.className = 'treemap-cell' + (rect.item.isUntagged ? ' untagged' : '');
-            div.style.left = (rect.x + 1) + 'px';
-            div.style.top = (rect.y + 1) + 'px';
-            div.style.width = (rect.width - 2) + 'px';
-            div.style.height = (rect.height - 2) + 'px';
+            div.style.left = rect.x + 'px';
+            div.style.top = rect.y + 'px';
+            div.style.width = rect.width + 'px';
+            div.style.height = rect.height + 'px';
+
+            // Add tooltip for all cells, especially small ones
+            div.title = (rect.item.isUntagged ? rect.item.name : '#' + rect.item.name) + ' (' + rect.item.count + ' 篇)';
 
             if (!rect.item.isUntagged) {
                 div.style.setProperty('--cell-hue', rect.item.hue);
@@ -150,12 +156,21 @@
             nameSpan.className = 'cell-name';
             nameSpan.textContent = rect.item.isUntagged ? rect.item.name : '#' + rect.item.name;
 
-            var countSpan = document.createElement('span');
-            countSpan.className = 'cell-count';
-            countSpan.textContent = rect.item.count + ' 篇';
-
-            div.appendChild(nameSpan);
-            div.appendChild(countSpan);
+            // Only show count if the cell is large enough
+            if (rect.width > 60 && rect.height > 40) {
+                var countSpan = document.createElement('span');
+                countSpan.className = 'cell-count';
+                countSpan.textContent = rect.item.count + ' 篇';
+                div.appendChild(nameSpan);
+                div.appendChild(countSpan);
+            } else {
+                // For small cells, maybe just show name or nothing if very small
+                if (rect.width > 30 && rect.height > 20) {
+                    div.appendChild(nameSpan);
+                } else {
+                    div.classList.add('mini-cell');
+                }
+            }
 
             // All cells are clickable
             div.style.cursor = 'pointer';

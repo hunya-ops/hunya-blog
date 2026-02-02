@@ -73,15 +73,15 @@ def get_posts_by_type(post_type, title):
     return render_template('admin/posts.html', posts=posts, title=title, current_status=status)
 
 
-@admin_bp.route('/posts')
+@admin_bp.route('/pulp')
 @login_required
-def posts():
+def pulp():
     return get_posts_by_type('pulp', '文章管理')
 
 
-@admin_bp.route('/weibo')
+@admin_bp.route('/uncut')
 @login_required
-def weibo():
+def uncut():
     return get_posts_by_type('uncut', '动态管理')
 
 
@@ -99,11 +99,18 @@ def new_post(post_type='uncut'):
             except ValueError:
                 pass
         
+        # 过滤掉无效的图片地址
+        image_urls_raw = request.form.get('image_urls', '')
+        image_urls = None
+        if image_urls_raw:
+            image_urls = ','.join([url.strip() for url in image_urls_raw.split(',') 
+                                 if url.strip() and url.strip() != 'None'])
+        
         post = Post(
             post_type=request.form.get('post_type', post_type),
             title=request.form.get('title') or None,
             content=request.form.get('content'),
-            image_urls=request.form.get('image_urls') or None,
+            image_urls=image_urls,
             is_published=request.form.get('action') == 'publish'
         )
         if created_at:
@@ -113,7 +120,7 @@ def new_post(post_type='uncut'):
         db.session.add(post)
         db.session.commit()
         flash('发布成功', 'success')
-        return redirect(url_for('admin.posts') if post.post_type == 'pulp' else url_for('admin.weibo'))
+        return redirect(url_for('admin.pulp') if post.post_type == 'pulp' else url_for('admin.uncut'))
 
     return render_template('admin/editor.html', post=None, post_type=post_type, now=datetime.now())
 
@@ -127,7 +134,14 @@ def edit_post(post_id):
         post.post_type = request.form.get('post_type', post.post_type)
         post.title = request.form.get('title') or None
         post.content = request.form.get('content')
-        post.image_urls = request.form.get('image_urls') or None
+        # 过滤掉无效的图片地址
+        image_urls_raw = request.form.get('image_urls', '')
+        if image_urls_raw:
+            post.image_urls = ','.join([url.strip() for url in image_urls_raw.split(',') 
+                                      if url.strip() and url.strip() != 'None'])
+        else:
+            post.image_urls = None
+            
         post.is_published = request.form.get('action') == 'publish'
         post.set_tags(request.form.get('tags', ''))
         
@@ -141,7 +155,7 @@ def edit_post(post_id):
 
         db.session.commit()
         flash('更新成功', 'success')
-        return redirect(url_for('admin.posts') if post.post_type == 'pulp' else url_for('admin.weibo'))
+        return redirect(url_for('admin.pulp') if post.post_type == 'pulp' else url_for('admin.uncut'))
 
     return render_template('admin/editor.html', post=post, post_type=post.post_type)
 
@@ -154,7 +168,7 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     flash('已删除', 'success')
-    return redirect(url_for('admin.posts') if post_type == 'pulp' else url_for('admin.weibo'))
+    return redirect(url_for('admin.pulp') if post_type == 'pulp' else url_for('admin.uncut'))
 
 
 @admin_bp.route('/toggle/<int:post_id>', methods=['POST'])
@@ -332,6 +346,9 @@ def settings_basic():
         # Navigation visibility settings
         Setting.set('show_archive', '1' if request.form.get('show_archive') else '0')
         Setting.set('show_tags', '1' if request.form.get('show_tags') else '0')
+        # New: Uncut posts visibility settings
+        Setting.set('archive_show_uncut', '1' if request.form.get('archive_show_uncut') else '0')
+        Setting.set('tag_show_uncut', '1' if request.form.get('tag_show_uncut') else '0')
         flash('设置已保存', 'success')
         return redirect(url_for('admin.settings_basic'))
 
@@ -341,7 +358,9 @@ def settings_basic():
         api_key=Setting.get('api_key', current_app.config.get('API_KEY', '')),
         posts_per_page=int(Setting.get('posts_per_page', str(current_app.config.get('POSTS_PER_PAGE', 20)))),
         show_archive=Setting.get('show_archive', '1') == '1',
-        show_tags=Setting.get('show_tags', '1') == '1'
+        show_tags=Setting.get('show_tags', '1') == '1',
+        archive_show_uncut=Setting.get('archive_show_uncut', '1') == '1',
+        tag_show_uncut=Setting.get('tag_show_uncut', '1') == '1'
     )
 
 

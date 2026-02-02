@@ -53,7 +53,9 @@ class Post(db.Model):
         """获取图片URL列表"""
         if not self.image_urls:
             return []
-        return [url.strip() for url in self.image_urls.split(',') if url.strip()]
+        # 过滤掉空的、空白的以及可能误存的字符串 "None"
+        return [url.strip() for url in self.image_urls.split(',') 
+                if url.strip() and url.strip() != 'None']
 
     def get_excerpt(self, length=140):
         """获取纯文本摘要"""
@@ -125,8 +127,8 @@ class Tag(db.Model):
 
     @property
     def post_count(self):
-        # Only count articles (pulp), not dynamic posts (uncut)
-        return self.posts.filter_by(is_published=True, post_type='pulp').count()
+        # Count all published posts (pulp and uncut)
+        return self.posts.filter_by(is_published=True).count()
 
 
 class Image(db.Model):

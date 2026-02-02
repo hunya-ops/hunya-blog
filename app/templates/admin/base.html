@@ -18,10 +18,10 @@
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-title">内容管理</div>
-                    <a href="{{ url_for('admin.posts') }}"
-                        class="nav-item {{ 'active' if request.endpoint == 'admin.posts' else '' }}">文章管理</a>
-                    <a href="{{ url_for('admin.weibo') }}"
-                        class="nav-item {{ 'active' if request.endpoint == 'admin.weibo' else '' }}">动态管理</a>
+                    <a href="{{ url_for('admin.pulp') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.pulp' else '' }}">文章管理</a>
+                    <a href="{{ url_for('admin.uncut') }}"
+                        class="nav-item {{ 'active' if request.endpoint == 'admin.uncut' else '' }}">动态管理</a>
                     <a href="{{ url_for('admin.tags') }}"
                         class="nav-item {{ 'active' if request.endpoint == 'admin.tags' else '' }}">标签管理</a>
                     <a href="{{ url_for('admin.images') }}"

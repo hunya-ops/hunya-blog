@@ -33,12 +33,13 @@
     --radius-pill: 99px;
     --header-height: 56px;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
-
     /* Body Background Variable */
     --bg-body: #f5f5f7;
+
+    /* Treemap */
+    --treemap-sat: 65%;
+    --treemap-light: 80%;
+    --treemap-border: #fff;
 }
 
 [data-theme="dark"] {
@@ -59,6 +60,10 @@
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
 
     --bg-body: #000000;
+
+    --treemap-sat: 45%;
+    --treemap-light: 35%;
+    --treemap-border: #000;
 }
 
 html {
@@ -722,7 +727,9 @@ main.container {
     gap: 4px;
     padding: 8px;
     overflow: hidden;
-    background: hsl(var(--cell-hue), 65%, 75%);
+    background: hsl(var(--cell-hue), var(--treemap-sat), var(--treemap-light));
+    border: 1px solid var(--treemap-border);
+    box-sizing: border-box;
     transition: all 0.2s ease;
 }
 
@@ -738,25 +745,31 @@ main.container {
 }
 
 .treemap-cell.untagged {
-    background: linear-gradient(145deg, #e0e0e0 0%, #c8c8c8 100%);
+    background: var(--treemap-border);
+    opacity: 0.8;
 }
 
 .treemap-cell.untagged:hover {
     transform: scale(1.02);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(145deg, #d5d5d5 0%, #bbb 100%);
+    opacity: 1;
+    background: var(--text-tertiary);
 }
 
 .cell-name {
-    font-size: 1rem;
+    font-size: clamp(0.7rem, 2vw, 1.1rem);
     font-weight: 700;
-    color: hsl(var(--cell-hue), 50%, 25%);
+    color: hsl(var(--cell-hue), 50%, 20%);
     text-align: center;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
+    max-width: 90%;
+}
+
+[data-theme="dark"] .cell-name {
+    color: hsl(var(--cell-hue), 80%, 85%);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .treemap-cell.untagged .cell-name {
@@ -764,10 +777,18 @@ main.container {
 }
 
 .cell-count {
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 1.5vw, 0.85rem);
     font-weight: 500;
-    color: hsl(var(--cell-hue), 40%, 35%);
+    color: hsl(var(--cell-hue), 40%, 30%);
     opacity: 0.8;
+}
+
+[data-theme="dark"] .cell-count {
+    color: hsl(var(--cell-hue), 60%, 80%);
+}
+
+.treemap-cell.mini-cell * {
+    display: none;
 }
 
 .treemap-cell.untagged .cell-count {
@@ -1219,81 +1240,142 @@ button:hover,
     }
 }
 
-/* Archive List */
+/* Capsule Archive List */
 .archive-list {
     list-style: none !important;
     padding: 0;
-    margin: 8px 0 0 10px;
-    position: relative;
-    border-left: 2px solid rgba(0, 0, 0, 0.05);
-    padding-left: 30px;
-}
-
-.archive-list li {
-    position: relative;
-    margin-bottom: 12px;
-    padding-left: 0;
+    margin: 16px 0 0 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
 }
 
-.archive-list li::before {
-    content: '';
-    position: absolute;
-    left: -37px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
+.archive-card-link {
+    text-decoration: none !important;
+    display: block;
+}
+
+.archive-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.archive-item:hover {
+    transform: translateX(8px);
     background: #fff;
-    border: 2px solid var(--primary);
-    border-radius: 50%;
-    transition: all 0.2s;
-    z-index: 2;
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px rgba(0, 113, 227, 0.12);
 }
 
-.archive-list li:hover::before {
-    background: var(--primary);
-    transform: translateY(-50%) scale(1.4);
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+[data-theme="dark"] .archive-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.archive-list time {
-    font-family: "SF Mono", "Menlo", monospace;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    min-width: 48px;
+.archive-item time {
+    font-family: inherit;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    min-width: 42px;
     flex-shrink: 0;
 }
 
-.archive-list a {
-    color: var(--text);
-    font-size: 1rem;
-    line-height: 1.5;
-    text-decoration: none;
+.archive-item .post-type-tag {
+    font-size: 0.65rem;
+    padding: 1px 8px;
+    border-radius: 99px;
+    min-width: unset;
+    font-weight: 700;
+}
+
+.archive-item-main {
     flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.archive-post-title {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 0;
+    max-width: 60%;
+    /* Allow space for tags */
 }
 
-.archive-list a:hover {
+.archive-item-tags {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    padding-right: 12px;
+}
+
+.mini-tag {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    background: rgba(0, 0, 0, 0.04);
+    padding: 1px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .mini-tag {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.archive-item-arrow {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     color: var(--primary);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.archive-item:hover .archive-item-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.archive-post-title.empty-hint {
+    color: var(--text-tertiary);
+    font-style: italic;
+    font-weight: 400;
+}
+
+.archive-month {
+    margin-top: 32px;
+}
+
+.archive-month:first-of-type {
+    margin-top: 0;
 }
 
 .archive-month h2 {
-    font-size: 1.2rem;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.7);
-    margin: 0 0 8px 0;
+    font-size: 1rem;
+    padding: 6px 16px;
+    background: var(--glass-bg);
+    margin: 0 0 12px 0;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px;
+    border-radius: 99px;
     display: inline-block;
     position: sticky;
     top: 80px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
 [data-theme="dark"] .archive-month h2 {
@@ -1465,14 +1547,17 @@ button:hover,
 
 /* ========== Footer ========== */
 footer {
-    margin-top: 40px;
-    padding: 30px 0;
-    font-size: 1.05rem;
+    margin-top: 80px;
+    padding: 40px 0;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    border-top: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: transparent;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+footer:hover {
+    opacity: 1;
 }
 
 /* Post Navigation (Back Button) */
@@ -1519,28 +1604,45 @@ footer .container {
     align-items: center;
 }
 
-footer p {
-    margin: 8px 0;
+.footer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-footer a {
+.footer-github-link {
     color: var(--text-secondary);
-    margin: 0 8px;
-    transition: color 0.2s;
-}
-
-footer a:hover {
-    color: var(--primary);
-}
-
-.footer-admin-link {
-    font-size: 0.8rem;
     opacity: 0.6;
-    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
 }
 
+.footer-github-link:hover {
+    opacity: 1;
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.footer-link,
+.footer-admin-link {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: var(--text-secondary);
+}
+
+.footer-link:hover,
 .footer-admin-link:hover {
     opacity: 1;
+    color: var(--primary);
 }
 
 /* ========== Pagination ========== */

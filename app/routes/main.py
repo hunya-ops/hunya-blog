@@ -56,8 +56,13 @@ def tag_posts(tag_name):
         return untagged_posts()
     
     tag = Tag.query.filter_by(name=tag_name).first_or_404()
-    # Only show articles (pulp), not dynamic posts (uncut)
-    posts = tag.posts.filter_by(is_published=True, post_type='pulp').order_by(Post.created_at.desc()).all()
+    
+    # Filter based on settings
+    show_uncut = Setting.get('tag_show_uncut', '1') == '1'
+    if show_uncut:
+        posts = tag.posts.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
+    else:
+        posts = tag.posts.filter_by(is_published=True, post_type='pulp').order_by(Post.created_at.desc()).all()
     
     # Group posts by month
     months_data = {}
@@ -78,9 +83,13 @@ def tag_posts(tag_name):
 
 
 def untagged_posts():
-    """Posts without any tags (Articles only)"""
-    # Get all published articles that have no tags
-    posts = Post.query.filter_by(is_published=True, post_type='pulp').filter(~Post.tags.any()).order_by(Post.created_at.desc()).all()
+    # Filter based on settings
+    show_uncut = Setting.get('tag_show_uncut', '1') == '1'
+    query = Post.query.filter_by(is_published=True).filter(~Post.tags.any())
+    if not show_uncut:
+        query = query.filter_by(post_type='pulp')
+    
+    posts = query.order_by(Post.created_at.desc()).all()
     
     # Group by month
     months_data = {}
@@ -109,8 +118,13 @@ def archive():
     if Setting.get('show_archive', '1') != '1':
         return redirect(url_for('main.index'))
     
-    # 1. Get all distinct years from DB for the sidebar (Articles/Pulp only)
-    years_query = db.session.query(extract('year', Post.created_at)).filter_by(is_published=True, post_type='pulp').distinct().all()
+    # 1. Get all distinct years from DB for the sidebar
+    show_uncut = Setting.get('archive_show_uncut', '1') == '1'
+    years_query = db.session.query(extract('year', Post.created_at)).filter_by(is_published=True)
+    if not show_uncut:
+        years_query = years_query.filter_by(post_type='pulp')
+    
+    years_query = years_query.distinct().all()
     all_years = sorted([int(y[0]) for y in years_query], reverse=True)
     
     # 2. Determine which year to show
@@ -121,12 +135,15 @@ def archive():
     if not current_year:
         return render_template('archive.html', years_data={}, sorted_years=[], current_year=None)
 
-    # 3. Fetch posts ONLY for the current_year (Articles/Pulp only)
-    posts = Post.query.filter(
+    # 3. Fetch posts ONLY for the current_year
+    query = Post.query.filter(
         extract('year', Post.created_at) == current_year, 
-        Post.is_published == True,
-        Post.post_type == 'pulp'
-    ).order_by(Post.created_at.desc()).all()
+        Post.is_published == True
+    )
+    if not show_uncut:
+        query = query.filter_by(post_type='pulp')
+        
+    posts = query.order_by(Post.created_at.desc()).all()
 
     # 4. Process data
     years_data = {
@@ -146,8 +163,9 @@ def archive():
     stats = []
     for m in range(1, 13):
         month_posts = years_data[current_year]['months'][m]
-        pulp_count = len(month_posts) # Only pulp posts are fetched
-        stats.append({'short': 0, 'long': pulp_count, 'total': pulp_count})
+        pulp_count = len([p for p in month_posts if p.post_type == 'pulp'])
+        short_count = len([p for p in month_posts if p.post_type == 'uncut'])
+        stats.append({'short': short_count, 'long': pulp_count, 'total': pulp_count + short_count})
     years_data[current_year]['stats'] = stats
     
     return render_template('archive.html', 
@@ -163,8 +181,8 @@ def all_tags():
     if Setting.get('show_tags', '1') != '1':
         return redirect(url_for('main.index'))
     
-    # Get total published articles count (only pulp, not uncut)
-    total_posts = Post.query.filter_by(is_published=True, post_type='pulp').count()
+    # Get total published posts count (both pulp and uncut)
+    total_posts = Post.query.filter_by(is_published=True).count()
     
     if total_posts == 0:
         return render_template('tags.html', tag_data=[], total_posts=0, untagged_count=0)
@@ -177,8 +195,8 @@ def all_tags():
     for tag in tags:
         count = tag.post_count  # This now only counts articles
         if count > 0:
-            # Collect article IDs that have this tag
-            for post in tag.posts.filter_by(is_published=True, post_type='pulp').all():
+            # Collect post IDs that have this tag
+            for post in tag.posts.filter_by(is_published=True).all():
                 tagged_post_ids.add(post.id)
             
             percentage = (count / total_posts) * 100

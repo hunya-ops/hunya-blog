@@ -11,7 +11,7 @@
 </div>
 
 <div class="filter-tabs">
-    {% set endpoint = 'admin.posts' if '文章' in title else 'admin.weibo' %}
+    {% set endpoint = 'admin.pulp' if '文章' in title else 'admin.uncut' %}
     <a href="{{ url_for(endpoint, status='all') }}" class="{{ 'active' if current_status == 'all' else '' }}">全部</a>
     <a href="{{ url_for(endpoint, status='published') }}"
         class="{{ 'active' if current_status == 'published' else '' }}">已发布</a>
@@ -36,7 +36,12 @@
                     {% if post.title %}
                     <strong>{{ post.title }}</strong>
                     {% else %}
-                    {{ post.get_excerpt(60) }}
+                    {% set excerpt = post.get_excerpt(60)|trim %}
+                    {% if excerpt %}
+                    {{ excerpt }}
+                    {% else %}
+                    <em style="color: var(--apple-secondary); opacity: 0.6;">无正文</em>
+                    {% endif %}
                     {% endif %}
                 </div>
             </td>
