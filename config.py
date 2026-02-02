@@ -1,10 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-if os.path.exists(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'env')):
-    load_dotenv('env')
-else:
-    load_dotenv()
+load_dotenv()
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -42,6 +39,8 @@ class Config:
     REMEMBER_COOKIE_SECURE = os.environ.get('FLASK_ENV') == 'production'
     SESSION_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
 
     # Upload Configuration
     UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')

@@ -2,10 +2,20 @@
 <html lang="zh-CN">
 
 <head>
+    <meta name="theme-color" content="#ffffff">
+    <meta name="color-scheme" content="light">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <style>
+        html,
+        body {
+            background-color: #ffffff !important;
+        }
+    </style>
     <title>{% block title %}管理后台{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=36">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=38">
     {% block head %}{% endblock %}
 </head>
 

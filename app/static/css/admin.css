@@ -73,9 +73,13 @@
     -webkit-font-smoothing: antialiased;
 }
 
+html {
+    background-color: #ffffff;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-    background-color: var(--apple-bg);
+    background-color: #ffffff;
     color: var(--apple-text);
     line-height: 1.47;
     letter-spacing: -0.022em;
@@ -103,6 +107,7 @@ a {
 .admin-layout {
     display: flex;
     min-height: 100vh;
+    background-color: #ffffff;
 }
 
 .short-content {
@@ -208,6 +213,8 @@ a {
     margin-left: 260px;
     padding: 60px 80px;
     min-width: 0;
+    background-color: var(--apple-bg);
+    min-height: 100vh;
 }
 
 .page-header {
@@ -286,7 +293,6 @@ a {
     border-radius: 16px;
     border-collapse: separate;
     border-spacing: 0;
-    box-shadow: var(--apple-shadow-sm);
     overflow: hidden;
     border: 1px solid var(--apple-border);
 }
@@ -431,6 +437,22 @@ form {
     margin-bottom: 32px;
     display: flex;
     align-items: center;
+}
+
+.date-input {
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.editor-section-box {
+    background: #fbfbfd;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--apple-border);
+    margin-top: 12px;
+    min-width: 0;
 }
 
 .title-input:focus {
@@ -842,7 +864,7 @@ form {
     min-width: 120px;
     border: none;
     outline: none;
-    font-size: 14px;
+    font-size: 16px;
     background: transparent;
     padding: 0;
     height: 32px;
@@ -1357,7 +1379,8 @@ input:checked+.slider:before {
 
     .main-content {
         margin-left: 0;
-        padding: 70px 20px 40px;
+        padding: calc(70px + env(safe-area-inset-top)) 20px 40px;
+        background-color: var(--apple-bg);
     }
 
     .mobile-header {
@@ -1368,12 +1391,10 @@ input:checked+.slider:before {
         top: 0;
         left: 0;
         right: 0;
-        height: 60px;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        height: calc(60px + env(safe-area-inset-top));
+        background: #ffffff;
         border-bottom: 1px solid var(--apple-border);
-        padding: 0 16px;
+        padding: env(safe-area-inset-top) 16px 0;
         z-index: 900;
     }
 
@@ -1908,6 +1929,25 @@ input:checked+.slider:before {
     /* Hide redundant sidebar box on mobile editor */
     .editor-sidebar .sidebar-box:first-child {
         display: none;
+    }
+
+    .editor-layout {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .editor-sidebar {
+        width: 100%;
+        order: 2;
+    }
+
+    .editor-main {
+        order: 1;
+        width: 100%;
+    }
+
+    .date-input {
+        width: 100% !important;
     }
 }
 
