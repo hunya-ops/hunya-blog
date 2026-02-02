@@ -382,17 +382,7 @@ main.container {
     animation-delay: 0s, 4s;
 }
 
-.toast-success {
-    /* Success indicator removed */
-}
 
-.toast-error {
-    /* Error indicator removed */
-}
-
-.toast-info {
-    /* Info indicator removed */
-}
 
 @keyframes toast-slide-in {
     from {
