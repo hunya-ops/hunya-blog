@@ -20,7 +20,8 @@
 *   **交互体验**：移动端深度优化（融合导航、动态屏高），支持 **Lightbox** 全屏图片预览、文章列表全区域点击。
 *   **可视化系统**：动态标签云（Treemap）、年度发文统计图表，直观呈现创作历程。
 *   **图片处理**：支持粘贴/拖拽上传，**支持 HEIC 格式秒转 JPEG**，内置防缓存图片处理与清理功能。
-*   **极简部署**：原生 Docker 支持，数据自动持久化，内置 CSRF 保护与密钥自动管理。
+*   **极致性能**：集成 **Flask-Caching + Redis**，支持数据库查询缓存与响应头标记 (`Flask-Caching: HIT`)。
+*   **极简部署**：原生 Docker 支持（含多容器编排），数据自动持久化，内置 CSRF 保护与密钥自动管理。
 *   **RSS 订阅**：内置符合标准的 RSS 源支持。
 
 ## 快速开始
@@ -91,6 +92,7 @@
 | `API_KEY` | API 访问密钥 (用于 iOS 快捷指令发布动态等) | `dev-token-123` |
 | `DOCKER_BIND` | Docker 监听地址 | `0.0.0.0` |
 | `PORT` | 容器映射端口 | `5000` |
+| `REDIS_URL` | Redis 缓存连接字符串 | (留空则降级为 SimpleCache 内存缓存) |
 | `FLASK_ENV` | 运行环境 | `production` |
 
 ## API 文档
@@ -141,6 +143,12 @@ server {
     }
 }
 ```
+
+### 3. 缓存监控
+项目在主站路由中内置了缓存监控头，可在控制台 `Network` 面板查看：
+- **`Flask-Caching: HIT (RedisCache)`**: 命中 Redis 共享缓存。
+- **`Flask-Caching: HIT (SimpleCache)`**: 命中单机内存缓存。
+- **`Flask-Caching: MISS`**: 未命中缓存，穿透到数据库。
 
 ### 2. 安全建议
 
