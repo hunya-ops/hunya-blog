@@ -19,10 +19,9 @@ api_bp = Blueprint('api', __name__)
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        from app.models import Setting
         token = request.headers.get('X-API-Key')
-        # Priority: Database setting > config.py (env variable)
-        configured_token = Setting.get('api_key') or current_app.config.get('API_KEY')
+        # Only use config (env variable)
+        configured_token = current_app.config.get('API_KEY')
         if not token or token != configured_token:
             return jsonify({'error': '未授权'}), 401
         return f(*args, **kwargs)
@@ -32,10 +31,9 @@ def token_required(f):
 def login_or_token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        from app.models import Setting
         # Check for API Key first
         token = request.headers.get('X-API-Key')
-        configured_token = Setting.get('api_key') or current_app.config.get('API_KEY')
+        configured_token = current_app.config.get('API_KEY')
         if token and token == configured_token:
             return f(*args, **kwargs)
         # Fallback to session auth
