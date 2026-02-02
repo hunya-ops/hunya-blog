@@ -150,7 +150,12 @@ server {
 - **`Flask-Caching: HIT (SimpleCache)`**: 命中单机内存缓存。
 - **`Flask-Caching: MISS`**: 未命中缓存，穿透到数据库。
 
-### 2. 安全建议
+#### 外部 Redis 配置
+如果你已有独立的 Redis 集群，不希望使用内置容器，请执行以下操作：
+1. 在 `.env` 中设置 `REDIS_URL` 指向你的外部地址。
+2. 在 `docker-compose.yml` 中注释或删除 `redis` 服务段落以及 `web` 服务下的 `depends_on` 约束。
+
+### 4. 安全建议
 
 为了安全，您可以让 Docker 只监听本地回环地址（`127.0.0.1`），防止通过 IP 直接访问：
 
