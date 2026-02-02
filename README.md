@@ -152,7 +152,7 @@ server {
 
 #### 外部 Redis 配置
 如果你已有独立的 Redis 集群，不希望使用内置容器，请执行以下操作：
-1. 在 `.env` 中设置 `REDIS_URL` 指向你的外部地址。
+1. 在 `env` 中设置 `REDIS_URL` 指向你的外部地址。
 2. 在 `docker-compose.yml` 中注释或删除 `redis` 服务段落以及 `web` 服务下的 `depends_on` 约束。
 
 ### 4. 安全建议
