@@ -17,7 +17,6 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    user: appuser
 
   redis:
     image: redis:alpine

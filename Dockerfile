@@ -2,9 +2,10 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies and gosu
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
@@ -21,15 +22,18 @@ ENV FLASK_APP=run.py
 # Create non-root user
 RUN adduser --disabled-password --gecos '' appuser
 
-# Create upload and data directories with correct permissions
-RUN mkdir -p app/static/uploads instance data && \
-    chown -R appuser:appuser /app
+# Create directories perms
+RUN mkdir -p app/static/uploads instance data
 
-# Switch to non-root user
-USER appuser
+# Copy entrypoint script
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Expose port
 EXPOSE 5000
 
-# Run with Gunicorn (Shell form to allow variable expansion)
+# Set entrypoint to handling permission fixing
+ENTRYPOINT ["entrypoint.sh"]
+
+# default CMD which will be passed to entrypoint
 CMD gunicorn -w ${GUNICORN_WORKERS:-4} -b ${GUNICORN_BIND:-0.0.0.0:5000} run:app
