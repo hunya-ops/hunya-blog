@@ -16,9 +16,22 @@ register_heif_opener()
 api_bp = Blueprint('api', __name__)
 
 
+
+INSECURE_KEYS = {'your-api-key-here', 'dev-token-123', '', None}
+
+
+def is_api_enabled():
+    """Check if the configured API key is secure and enabled."""
+    key = current_app.config.get('API_KEY')
+    return key and str(key) not in INSECURE_KEYS
+
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        if not is_api_enabled():
+            return jsonify({'error': 'API功能未启用：请在服务器配置安全有效的 API Key'}), 403
+
         token = request.headers.get('X-API-Key')
         # Only use config (env variable)
         configured_token = current_app.config.get('API_KEY')
@@ -31,11 +44,16 @@ def token_required(f):
 def login_or_token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Check for API Key first
+        # Check for API Key first (if provided)
         token = request.headers.get('X-API-Key')
-        configured_token = current_app.config.get('API_KEY')
-        if token and token == configured_token:
-            return f(*args, **kwargs)
+        if token:
+            if not is_api_enabled():
+                return jsonify({'error': 'API功能未启用：请在服务器配置安全有效的 API Key'}), 403
+            
+            configured_token = current_app.config.get('API_KEY')
+            if token == configured_token:
+                return f(*args, **kwargs)
+                
         # Fallback to session auth
         from flask_login import current_user
         if current_user.is_authenticated:
