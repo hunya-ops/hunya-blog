@@ -80,6 +80,7 @@ docker compose up -d --build
 
 详细说明请参考 [env.example](env.example) 文件，其中包含：
 *   **部署与网络**：`DOCKER_BIND` (安全绑定 IP) 与 `PORT`。
+*   **时区设置**：`TZ` (默认 `Asia/Shanghai`)，确保日志与文章时间显示正确。
 *   **Docker 调优**：`GUNICORN_WORKERS` 进程数计算。
 *   **博客设置**：`BLOG_TITLE` 等初始默认值。
 
