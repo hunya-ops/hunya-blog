@@ -54,6 +54,12 @@
                             <span class="toggle-switch"></span>
                             <span>在标签详情中包含动态</span>
                         </label>
+                        <label class="toggle-label vertical-center">
+                            <input type="checkbox" name="rss_show_uncut" value="1" {{ 'checked' if rss_show_uncut
+                                else '' }}>
+                            <span class="toggle-switch"></span>
+                            <span>RSS 中包含动态</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -100,7 +106,8 @@
 
 <style>
     /* 这里的样式复用 admin.css 中的变量和类，仅做局部补丁 */
-    .toggle-label {
+    .toggle-label,
+    .form-group .toggle-label {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -110,6 +117,9 @@
         color: var(--apple-text);
         padding: 4px 0;
         margin-bottom: 0 !important;
+        /* Fix vertical alignment on PC to match mobile */
+        min-height: 24px;
+        line-height: 1;
     }
 
     .toggle-label input[type="checkbox"] {

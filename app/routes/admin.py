@@ -373,6 +373,7 @@ def settings_basic():
         # New: Uncut posts visibility settings
         Setting.set('archive_show_uncut', '1' if request.form.get('archive_show_uncut') else '0')
         Setting.set('tag_show_uncut', '1' if request.form.get('tag_show_uncut') else '0')
+        Setting.set('rss_show_uncut', '1' if request.form.get('rss_show_uncut') else '0')
         cache.clear()
         flash('设置已保存', 'success')
         return redirect(url_for('admin.settings_basic'))
@@ -385,7 +386,8 @@ def settings_basic():
         show_archive=Setting.get('show_archive', '1') == '1',
         show_tags=Setting.get('show_tags', '1') == '1',
         archive_show_uncut=Setting.get('archive_show_uncut', '1') == '1',
-        tag_show_uncut=Setting.get('tag_show_uncut', '1') == '1'
+        tag_show_uncut=Setting.get('tag_show_uncut', '1') == '1',
+        rss_show_uncut=Setting.get('rss_show_uncut', '0') == '1'
     )
 
 

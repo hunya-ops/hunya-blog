@@ -1,4 +1,5 @@
 import re
+import markdown
 from flask import Blueprint, Response, current_app, url_for
 from app.models import Post, Setting
 
@@ -7,10 +8,19 @@ feed_bp = Blueprint('feed', __name__)
 
 @feed_bp.route('/feed.xml')
 def rss_feed():
-    # Only output articles (pulp), not dynamic posts (uncut)
-    posts = Post.query.filter_by(is_published=True, post_type='pulp')\
-        .order_by(Post.created_at.desc())\
-        .limit(20).all()
+    # Determine which post types to include
+    rss_show_uncut = Setting.get('rss_show_uncut', '0') == '1'
+    
+    query = Post.query.filter_by(is_published=True)
+    if not rss_show_uncut:
+        query = query.filter_by(post_type='pulp')
+    else:
+        # If showing uncut, we include both 'pulp' and 'uncut'
+        # Since there are only these two types, we don't need to filter by post_type explicitly
+        # or we could filter by post_type in ['pulp', 'uncut'] if there were other types.
+        pass
+
+    posts = query.order_by(Post.created_at.desc()).limit(20).all()
 
     # Use database settings with config fallback
     blog_title = Setting.get('blog_title', current_app.config['BLOG_TITLE'])
@@ -31,7 +41,8 @@ def rss_feed():
       <link>{link}</link>
       <guid>{link}</guid>
       <pubDate>{pub_date}</pubDate>
-      <description><![CDATA[{post.content.replace(']]>', ']]]]><![CDATA[>')}]]></description>
+      <pubDate>{pub_date}</pubDate>
+      <description><![CDATA[{markdown.markdown(post.content).replace(']]>', ']]]]><![CDATA[>')}]]></description>
     </item>''')
 
     xml = f'''<?xml version="1.0" encoding="UTF-8"?>
