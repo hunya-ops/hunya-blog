@@ -56,6 +56,7 @@ def dashboard():
         'total_tags': Tag.query.count()
     }
     recent_posts = Post.query.order_by(Post.updated_at.desc()).limit(5).all()
+    recent_posts = Post.query.order_by(Post.updated_at.desc()).limit(5).all()
     return render_template('admin/dashboard.html', stats=stats, recent_posts=recent_posts, now=datetime.now())
 
 
@@ -116,6 +117,8 @@ def new_post(post_type='uncut'):
         )
         if created_at:
             post.created_at = created_at
+        if created_at:
+            post.created_at = created_at
         post.set_tags(request.form.get('tags', ''))
         
         db.session.add(post)
@@ -148,6 +151,7 @@ def edit_post(post_id):
         else:
             post.image_urls = None
             
+        action = request.form.get('action')
         action = request.form.get('action')
         post.set_tags(request.form.get('tags', ''))
         

@@ -20,7 +20,7 @@
     </header>
     <div class="post-content">
         {% if post.post_type == 'uncut' %}
-        <p>{{ post.content }}</p>
+        <p>{{ post.content | urlize(target='_blank') }}</p>
         {% set images = post.get_image_list() %}
         {% if images %}
         <div class="image-grid-display count-{{ images|length }}">

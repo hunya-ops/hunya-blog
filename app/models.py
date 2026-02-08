@@ -22,6 +22,7 @@ class Post(db.Model):
     image_urls = db.Column(db.Text, nullable=True)  # 多图URL，逗号分隔
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     is_published = db.Column(db.Boolean, default=True)
 
     def __init__(self, **kwargs):
